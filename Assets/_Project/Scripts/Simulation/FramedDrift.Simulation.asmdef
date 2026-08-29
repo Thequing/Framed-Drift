@@ -1,0 +1,14 @@
+{
+    "name": "FramedDrift.Simulation",
+    "rootNamespace": "FramedDrift.Simulation",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}

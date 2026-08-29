@@ -1,0 +1,9 @@
+Ordem de producao (GDD 19.4):
+Downtown -> Industrial -> Montanha -> Rodovia -> Cidade Noturna -> Costa ->
+Deserto -> Porto -> Floresta -> Neve
+
+Cada cenario precisa alterar geometria, iluminacao, clima possivel, trafego,
+obstaculos, eventos, drops e trilha - NAO apenas textura.
+
+MVP: 1 regiao (Cidade). R5: low-poly deliberado, modulos reaproveitados entre
+regioes com paleta e props diferentes.

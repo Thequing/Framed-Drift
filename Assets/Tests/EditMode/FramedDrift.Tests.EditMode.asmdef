@@ -1,0 +1,27 @@
+{
+    "name": "FramedDrift.Tests.EditMode",
+    "rootNamespace": "FramedDrift.Tests.EditMode",
+    "references": [
+        "FramedDrift.Simulation",
+        "FramedDrift.Data",
+        "FramedDrift.Core",
+        "FramedDrift.Garage",
+        "FramedDrift.Progression",
+        "FramedDrift.Automation",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

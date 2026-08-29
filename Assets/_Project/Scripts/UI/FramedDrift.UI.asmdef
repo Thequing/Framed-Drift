@@ -1,0 +1,21 @@
+{
+    "name": "FramedDrift.UI",
+    "rootNamespace": "FramedDrift.UI",
+    "references": [
+        "FramedDrift.Simulation",
+        "FramedDrift.Data",
+        "FramedDrift.Core",
+        "FramedDrift.Garage",
+        "FramedDrift.Progression",
+        "FramedDrift.Automation"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

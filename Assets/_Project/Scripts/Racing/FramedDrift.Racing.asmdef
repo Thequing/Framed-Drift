@@ -1,0 +1,19 @@
+{
+    "name": "FramedDrift.Racing",
+    "rootNamespace": "FramedDrift.Racing",
+    "references": [
+        "FramedDrift.Simulation",
+        "FramedDrift.Data",
+        "FramedDrift.Core",
+        "FramedDrift.Garage"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

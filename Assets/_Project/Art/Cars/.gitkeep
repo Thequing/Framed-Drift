@@ -1,0 +1,10 @@
+Modelos de carro. Duas restricoes de silhueta obrigatorias desde a
+modelagem (GDD 19.1):
+
+1. Legivel a 360x48 px (modo Taskbar).
+2. Yaw legivel da camera traseira elevada - um carro a 40 graus precisa ser
+   inequivocamente diferente de um carro reto. Teto e capo com formas assimetricas
+   e de alto contraste, faixa de cor atravessando o eixo longitudinal, rodas
+   visiveis o suficiente para o estercamento aparecer.
+
+Um carro cujo topo e uma mancha uniforme falha no teste.
