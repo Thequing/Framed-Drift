@@ -1,0 +1,24 @@
+{
+    "name": "FramedDrift.Bootstrap",
+    "rootNamespace": "FramedDrift.Bootstrap",
+    "references": [
+        "FramedDrift.Simulation",
+        "FramedDrift.Data",
+        "FramedDrift.Core",
+        "FramedDrift.Garage",
+        "FramedDrift.Progression",
+        "FramedDrift.Automation",
+        "FramedDrift.App",
+        "FramedDrift.Racing",
+        "FramedDrift.UI"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

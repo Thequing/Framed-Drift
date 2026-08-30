@@ -77,5 +77,121 @@ namespace FramedDrift.Simulation.Rng
         {
             return NextFloat() < p;
         }
+
+        // --- distribuicoes usadas pela agregacao offline (GDD 17.2) -----------------
+
+        private bool _hasSpareGaussian;
+        private double _spareGaussian;
+
+        /// <summary>
+        /// Normal(0,1) por Box-Muller polar. O par gerado e guardado, entao o consumo do
+        /// fluxo depende de quantas amostras foram pedidas - nunca chame isto de dentro
+        /// do fluxo de Execution no meio de um segmento sem contar as chamadas, ou o
+        /// replay deixa de bater.
+        /// </summary>
+        public double NextGaussian()
+        {
+            if (_hasSpareGaussian)
+            {
+                _hasSpareGaussian = false;
+                return _spareGaussian;
+            }
+
+            double u, v, s;
+            do
+            {
+                u = NextDouble() * 2.0 - 1.0;
+                v = NextDouble() * 2.0 - 1.0;
+                s = u * u + v * v;
+            }
+            while (s >= 1.0 || s == 0.0);
+
+            double f = System.Math.Sqrt(-2.0 * System.Math.Log(s) / s);
+            _spareGaussian = v * f;
+            _hasSpareGaussian = true;
+            return u * f;
+        }
+
+        public double NextGaussian(double mean, double stdDev)
+        {
+            return mean + stdDev * NextGaussian();
+        }
+
+        /// <summary>
+        /// Poisson(lambda). Knuth para lambda pequeno, aproximacao normal acima de 30 -
+        /// o metodo de Knuth faz lambda multiplicacoes e a agregacao offline chega a
+        /// lambda na casa dos milhares (GDD 17.2).
+        /// </summary>
+        public int Poisson(double lambda)
+        {
+            if (lambda <= 0.0) return 0;
+
+            if (lambda < 30.0)
+            {
+                double l = System.Math.Exp(-lambda);
+                int k = 0;
+                double p = 1.0;
+                do
+                {
+                    k++;
+                    p *= NextDouble();
+                }
+                while (p > l);
+                return k - 1;
+            }
+
+            double sample = NextGaussian(lambda, System.Math.Sqrt(lambda));
+            return sample < 0.0 ? 0 : (int)System.Math.Round(sample);
+        }
+
+        /// <summary>Binomial(n, p). Aproximada por Poisson ou Normal quando n e grande.</summary>
+        public int Binomial(int n, double p)
+        {
+            if (n <= 0 || p <= 0.0) return 0;
+            if (p >= 1.0) return n;
+
+            if (n <= 64)
+            {
+                int hits = 0;
+                for (int i = 0; i < n; i++) if (NextDouble() < p) hits++;
+                return hits;
+            }
+
+            double mean = n * p;
+            if (mean < 30.0)
+            {
+                int k = Poisson(mean);
+                return k > n ? n : k;
+            }
+
+            double sd = System.Math.Sqrt(mean * (1.0 - p));
+            double sample = NextGaussian(mean, sd);
+            if (sample < 0.0) return 0;
+            if (sample > n) return n;
+            return (int)System.Math.Round(sample);
+        }
+
+        /// <summary>
+        /// Indice sorteado com pesos. Devolve -1 quando a tabela esta vazia ou tem soma
+        /// nao positiva - o chamador decide se isso e um erro de conteudo.
+        /// </summary>
+        public int WeightedIndex(float[] weights)
+        {
+            if (weights == null || weights.Length == 0) return -1;
+
+            double total = 0.0;
+            for (int i = 0; i < weights.Length; i++)
+                if (weights[i] > 0f) total += weights[i];
+            if (total <= 0.0) return -1;
+
+            double roll = NextDouble() * total;
+            for (int i = 0; i < weights.Length; i++)
+            {
+                if (weights[i] <= 0f) continue;
+                roll -= weights[i];
+                if (roll <= 0.0) return i;
+            }
+            return weights.Length - 1;
+        }
     }
 }

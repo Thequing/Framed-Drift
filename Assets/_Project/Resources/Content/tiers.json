@@ -1,0 +1,51 @@
+// Tiers D..S. GDD 0.2 secoes 10.2 e 14.2.
+//
+// Subir de STAGE aumenta ~4% na dificuldade e ~6% na recompensa. Subir de TIER muda a
+// natureza: novos afixos, novos modulos, novos rivais, novo teto de raridade.
+// O MVP so usa o tier D; os outros existem para o gerador e os testes nao mentirem.
+{
+  "tiers": [
+    {
+      "rank": "D",
+      "difficultyScale": 1.00,
+      "rewardScale": 1.00,
+      // Ordem: Common, Uncommon, Rare, Epic, Legendary (GDD 10.2).
+      // O MVP usa so as tres primeiras; Epic e Legendary ficam em zero no tier D.
+      "rarityWeights": [62.0, 26.0, 12.0, 0.0, 0.0],
+      "itemLevelCap": 8,
+      "reputationRequired": 0
+    },
+    {
+      "rank": "C",
+      "difficultyScale": 1.35,
+      "rewardScale": 1.55,
+      "rarityWeights": [55.0, 28.0, 14.0, 2.2, 0.0],
+      "itemLevelCap": 18,
+      "reputationRequired": 20
+    },
+    {
+      "rank": "B",
+      "difficultyScale": 1.85,
+      "rewardScale": 2.40,
+      "rarityWeights": [46.0, 30.0, 18.0, 5.4, 0.6],
+      "itemLevelCap": 34,
+      "reputationRequired": 45
+    },
+    {
+      "rank": "A",
+      "difficultyScale": 2.50,
+      "rewardScale": 3.80,
+      "rarityWeights": [36.0, 32.0, 22.0, 8.6, 1.4],
+      "itemLevelCap": 55,
+      "reputationRequired": 70
+    },
+    {
+      "rank": "S",
+      "difficultyScale": 3.40,
+      "rewardScale": 6.20,
+      "rarityWeights": [26.0, 30.0, 28.0, 13.0, 3.0],
+      "itemLevelCap": 80,
+      "reputationRequired": 90
+    }
+  ]
+}

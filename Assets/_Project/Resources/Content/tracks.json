@@ -1,0 +1,74 @@
+// Tres pistas fixas do MVP. GDD 0.2 secoes 11 e 22.1.
+//
+// Montadas a mao: o gerador procedural e a Fase 12, e produz exatamente este formato.
+// Escala da secao 5.1: 18-30 segmentos, ~1,2-2,0 km.
+//
+// baseTimeSeconds e o tempo de referencia do grid de adversarios (GDD 5.6), e nao um
+// adversario real a bater - os seis carros sao amostrados de N(t_ref, t_ref * 0.06).
+// Calibrado para o teste "carro inicial na pista inicial vence 55-75%" (GDD 21.2).
+{
+  "tracks": [
+    {
+      // 0-2 min da primeira hora: uma corrida, um carro, sem menu (GDD 22.3).
+      "id": "city_loop",
+      "name": "Centro - Volta Curta",
+      "region": "city",
+      "tier": "D",
+      "baseTimeSeconds": 73,
+      "scoreMultiplier": 1.00,
+      "baseCash": 200,
+      "baseXp": 40,
+      "reputationRequired": 0,
+      "modules": [
+        "str_med", "gentle_l", "str_med", "gentle_r",
+        "sharp_l", "str_med", "gentle_r", "str_med",
+        "scurve", "str_med", "gentle_l", "sharp_r",
+        "gentle_l", "str_med", "gentle_r", "str_med",
+        "sharp_l", "str_med", "gentle_l", "str_med"
+      ]
+    },
+
+    {
+      // Segunda pista: 5-15 min. Mais curva fechada, primeira decisao de build.
+      "id": "city_docks",
+      "name": "Centro - Doca Norte",
+      "region": "city",
+      "tier": "D",
+      "baseTimeSeconds": 82,
+      "scoreMultiplier": 1.12,
+      "baseCash": 300,
+      "baseXp": 55,
+      "reputationRequired": 4,
+      "modules": [
+        "str_med", "gentle_r", "sharp_l", "str_med",
+        "sharp_r", "gentle_l", "scurve", "gentle_r",
+        "str_med", "sharp_l", "gentle_r", "str_med",
+        "scurve", "str_med", "gentle_l", "sharp_r",
+        "str_med", "gentle_r", "sharp_l", "gentle_l",
+        "str_med", "gentle_r", "str_med", "str_med"
+      ]
+    },
+
+    {
+      // Pista tecnica: quase tudo e curva. Premia DriftControl e Transition.
+      "id": "city_underpass",
+      "name": "Centro - Viaduto Sul",
+      "region": "city",
+      "tier": "D",
+      "baseTimeSeconds": 90,
+      "scoreMultiplier": 1.28,
+      "baseCash": 380,
+      "baseXp": 70,
+      "reputationRequired": 10,
+      "modules": [
+        "str_med", "sharp_l", "gentle_r", "sharp_r",
+        "gentle_l", "scurve", "str_med", "sharp_l",
+        "str_med", "scurve", "gentle_r", "sharp_r",
+        "gentle_l", "str_med", "sharp_l", "gentle_r",
+        "scurve", "str_med", "sharp_r", "gentle_l",
+        "str_med", "gentle_r", "sharp_l", "str_med",
+        "gentle_l", "str_med"
+      ]
+    }
+  ]
+}

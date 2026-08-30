@@ -69,4 +69,13 @@ namespace FramedDrift.Simulation.Model
 
     /// <summary>Tier de dificuldade / progressao. GDD 8.2 / 14.</summary>
     public enum TierRank { D, C, B, A, S }
+
+    /// <summary>
+    /// As quatro faixas em que o indice de risco e exibido. GDD 12.1.
+    ///
+    /// O jogador le BAIXO / MEDIO / ALTO / EXTREMO - nunca o numero cru. Risco alto
+    /// aumenta recompensa, chance de drop raro e chance de falha, nesta ordem de
+    /// destaque na UI, porque e nesta ordem que ele precisa entende-los.
+    /// </summary>
+    public enum RiskBand { Low, Medium, High, Extreme }
 }

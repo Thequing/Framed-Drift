@@ -1,0 +1,137 @@
+// 20 bases artesanais nos 8 slots. GDD 0.2 secoes 9.1, 10.1, 22.1.
+//
+// D-04: peca e gerada proceduralmente SOBRE base artesanal. Aqui esta a base; os afixos
+// (affixes.json) e a passiva (passives.json) sao rolados por cima.
+//
+// Os componentes menores do brainstorm (ECU, admissao, escape, pistoes, molas, pastilhas,
+// discos, splitter, difusor...) NAO viram slots - eles viram NOMES e artes de peca dentro
+// destes 8 (GDD 9.1). Oito slots ja produzem explosao combinatoria; 25 produzem planilha.
+{
+  "parts": [
+    // --- Motor: Power, Reliability -------------------------------------------
+    {
+      "id": "eng_stock", "name": "Motor de Serie", "slot": "Engine", "tier": "D",
+      "sellValue": 40, "buyCost": 0, "dropWeight": 1.4,
+      "stats": { "Power": 0, "Reliability": 6 }
+    },
+    {
+      "id": "eng_street", "name": "Comando de Rua", "slot": "Engine", "tier": "D",
+      "sellValue": 180, "buyCost": 900, "dropWeight": 1.0, "set": "street_king",
+      "stats": { "Power": 28, "Reliability": -3, "Cooling": -4 }
+    },
+    {
+      "id": "eng_sport", "name": "Pistoes Forjados", "slot": "Engine", "tier": "D",
+      "sellValue": 420, "buyCost": 2600, "dropWeight": 0.55,
+      "stats": { "Power": 62, "Reliability": -9, "Cooling": -8 }
+    },
+
+    // --- Turbo / Aspiracao: Power, Cooling, Initiation ------------------------
+    {
+      "id": "tur_stock", "name": "Aspiracao Natural", "slot": "Turbo", "tier": "D",
+      "sellValue": 35, "buyCost": 0, "dropWeight": 1.4,
+      "stats": { "Cooling": 8 }
+    },
+    {
+      "id": "tur_sport", "name": "Turbo de Alta Pressao", "slot": "Turbo", "tier": "D",
+      "sellValue": 380, "buyCost": 2400, "dropWeight": 0.7, "set": "drift_demon",
+      "stats": { "Power": 48, "Initiation": 10, "Cooling": -12, "Reliability": -5 }
+    },
+
+    // --- Transmissao: Aceleracao, Transition -----------------------------------
+    {
+      "id": "trn_stock", "name": "Cambio Original", "slot": "Transmission", "tier": "D",
+      "sellValue": 35, "buyCost": 0, "dropWeight": 1.4,
+      "stats": {}
+    },
+    {
+      "id": "trn_short", "name": "Cambio Curto", "slot": "Transmission", "tier": "D",
+      "sellValue": 220, "buyCost": 1400, "dropWeight": 0.9, "set": "street_king",
+      "stats": { "Transition": 14, "Aero": -4 }
+    },
+
+    // --- Diferencial: o SLOT DE ASSINATURA (GDD 9.2) ----------------------------
+    // A tabela da secao 9.2 esta inteira aqui: e a peca que mais muda o comportamento.
+    {
+      "id": "dif_open", "name": "Diferencial Aberto", "slot": "Differential", "tier": "D",
+      "differentialType": "Open",
+      "sellValue": 30, "buyCost": 0, "dropWeight": 1.2,
+      "stats": { "Initiation": -20, "Angle": -25, "Stability": 15 }
+    },
+    {
+      "id": "dif_street", "name": "LSD de Rua", "slot": "Differential", "tier": "D",
+      "differentialType": "StreetLsd",
+      "sellValue": 150, "buyCost": 800, "dropWeight": 1.1,
+      "stats": {}
+    },
+    {
+      "id": "dif_lsd15", "name": "LSD 1.5-Way", "slot": "Differential", "tier": "D",
+      "differentialType": "Lsd15Way",
+      "sellValue": 340, "buyCost": 2100, "dropWeight": 0.8,
+      "stats": { "Initiation": 12, "Angle": 10, "Stability": -5 }
+    },
+    {
+      "id": "dif_lsd2way", "name": "LSD 2-Way", "slot": "Differential", "tier": "D",
+      "differentialType": "Lsd2Way",
+      "sellValue": 560, "buyCost": 3800, "dropWeight": 0.5, "set": "drift_demon",
+      "stats": { "Initiation": 25, "Angle": 22, "Stability": -15 }
+    },
+
+    // --- Suspensao: Grip, Steering, DriftControl ---------------------------------
+    {
+      "id": "sus_stock", "name": "Suspensao Original", "slot": "Suspension", "tier": "D",
+      "sellValue": 35, "buyCost": 0, "dropWeight": 1.4,
+      "stats": {}
+    },
+    {
+      "id": "sus_coilover", "name": "Coilover de Drift", "slot": "Suspension", "tier": "D",
+      "sellValue": 400, "buyCost": 2500, "dropWeight": 0.7, "set": "drift_demon",
+      "stats": { "Steering": 16, "DriftControl": 14, "Grip": -4, "Stability": -6 }
+    },
+
+    // --- Pneus: o unico slot com PERFIL DE CONDICAO (GDD 9.3) ----------------------
+    // A peca certa depende do clima e da superficie, nao do "nivel". E a porta de entrada
+    // natural para o sistema de presets da secao 9.5.
+    {
+      "id": "tir_street", "name": "Pneu de Rua", "slot": "Tires", "tier": "D",
+      "tireProfile": "Street",
+      "sellValue": 60, "buyCost": 300, "dropWeight": 1.3,
+      "stats": {}
+    },
+    {
+      "id": "tir_drift", "name": "Pneu de Drift", "slot": "Tires", "tier": "D",
+      "tireProfile": "Drift",
+      "sellValue": 240, "buyCost": 1500, "dropWeight": 0.9, "set": "drift_demon",
+      "stats": { "Angle": 8, "Initiation": 6, "Grip": -3 }
+    },
+    {
+      "id": "tir_wet", "name": "Pneu de Chuva", "slot": "Tires", "tier": "D",
+      "tireProfile": "Wet",
+      "sellValue": 200, "buyCost": 1200, "dropWeight": 0.8,
+      "stats": { "Stability": 6 }
+    },
+
+    // --- Freios: Braking, DriftControl -----------------------------------------------
+    {
+      "id": "brk_stock", "name": "Freio Original", "slot": "Brakes", "tier": "D",
+      "sellValue": 30, "buyCost": 0, "dropWeight": 1.4,
+      "stats": {}
+    },
+    {
+      "id": "brk_sport", "name": "Pastilha Esportiva", "slot": "Brakes", "tier": "D",
+      "sellValue": 210, "buyCost": 1300, "dropWeight": 0.9, "set": "street_king",
+      "stats": { "Braking": 18, "DriftControl": 6 }
+    },
+
+    // --- Aero / Peso: Weight, TopSpeed, Stability --------------------------------------
+    {
+      "id": "aer_stock", "name": "Lataria Original", "slot": "AeroWeight", "tier": "D",
+      "sellValue": 30, "buyCost": 0, "dropWeight": 1.4,
+      "stats": {}
+    },
+    {
+      "id": "aer_fiber", "name": "Paineis de Fibra", "slot": "AeroWeight", "tier": "D",
+      "sellValue": 350, "buyCost": 2200, "dropWeight": 0.7, "set": "street_king",
+      "stats": { "Weight": -68, "Aero": 22, "Stability": -8 }
+    }
+  ]
+}

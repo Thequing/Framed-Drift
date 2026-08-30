@@ -5,7 +5,8 @@
         "FramedDrift.Simulation",
         "FramedDrift.Data",
         "FramedDrift.Core",
-        "FramedDrift.Garage"
+        "FramedDrift.Garage",
+        "FramedDrift.Progression"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -1,0 +1,272 @@
+// FRAMED DRIFT - constantes de balanceamento
+// GDD 0.2, apendice B e todas as formulas das secoes 5, 6, 7.2, 11, 12, 14, 15, 17, 19.2.
+//
+// Este arquivo e a fonte da verdade das ~60 constantes. Nenhum numero de balanceamento
+// pode aparecer em codigo de gameplay (GDD 20.2): editar aqui muda o jogo sem recompilar.
+//
+// Comentarios de linha sao aceitos pelo leitor - use-os.
+{
+  // --- 5.2 grip efetivo -------------------------------------------------------
+  "gripBase": 0.60,
+  "gripSpan": 0.60,
+  "wearGripPenalty": 0.35,
+
+  "tireGrip": {
+    "Street": 0.92,
+    "Sport": 1.00,
+    "SemiSlick": 1.08,
+    "Drift": 0.95,
+    "Racing": 1.15,
+    "Wet": 0.88
+  },
+  "wetTireOnWetGrip": 1.30,
+  "wetTireDryOverheatPenalty": 0.15,
+  "wetTireOverheatAfterFraction": 0.40,
+
+  "weatherGrip": {
+    "Clear": 1.00,
+    "Cloudy": 1.00,
+    "Rain": 0.78,
+    "HeavyRain": 0.66,
+    "Fog": 0.95,
+    "Snow": 0.55
+  },
+
+  "surfaceGrip": {
+    "Asphalt": 1.00,
+    "WornAsphalt": 0.94,
+    "Concrete": 0.97,
+    "Gravel": 0.72,
+    "Snow": 0.58
+  },
+
+  // --- 5.3 velocidade de curva -------------------------------------------------
+  "arcadeSpeedFactor": 1.25,
+  "gravity": 9.81,
+  "msToKmh": 3.6,
+  "straightAccelPerIndex": 0.12,     // km/h por segundo por ponto do indice de aceleracao
+  "brakingTimeSavedPerPoint": 0.0016,
+  "brakingTimeSaveMax": 0.18,
+  "startSpeedKmh": 30,
+
+  // --- 5.4 grip x drift ---------------------------------------------------------
+  "driftThresholdBase": 55,
+  "driftThresholdCurvature": 20,
+  "initiationPowerWeightGain": 0.05,
+  "driftSpeedFloor": 0.78,
+  "driftSpeedAngleSpan": 600,
+  "transitionSpeedBonus": 0.10,
+  "curvatureReferenceRadius": 30,
+
+  "styleInitiationBias": { "Safe": -25, "Balanced": 0, "Aggressive": 18, "Reckless": 35 },
+  "styleRiskFactor":     { "Safe": -0.20, "Balanced": 0, "Aggressive": 0.15, "Reckless": 0.35 },
+
+  // --- 5.5 qualidade de execucao --------------------------------------------------
+  "skillSteeringFactor": 0.4,
+  "skillStabilityFactor": 0.3,
+  "skillSigmoidDivisor": 18,
+  "perfectCeiling": 0.68,
+  "perfectMin": 0.02,
+  "perfectMax": 0.75,
+  "badBase": 0.38,
+  "badSlope": 0.34,
+  "badMin": 0.03,
+  "badMax": 0.48,
+
+  "qualityMult":        { "Bad": 0.35, "Good": 1.00, "Perfect": 1.60 },
+  "qualityAngleFactor": { "Bad": 0.45, "Good": 0.85, "Perfect": 1.00 },
+  "badExitSpeedPenalty": 0.12,
+
+  "condModRain": 0.12,
+  "condModNight": 0.08,
+  "condModFog": 0.15,
+  "condModHeavyTraffic": 0.10,
+
+  // --- 5.6 tempo e posicao ----------------------------------------------------------
+  "tierTimeScale": 0.018,
+  "opponentSigmaFraction": 0.06,
+  "gridSize": 6,
+
+  // --- 5.7 estado continuo ------------------------------------------------------------
+  "tireWearPerKm": 0.30,
+  "tireWearStyleFactor": 0.55,
+  "tireWearDriftFactor": 1.8,
+  "tempRisePerKm": 0.35,
+  "tempCoolingFactor": 0.0018,
+  "tempOverheatThreshold": 0.80,
+  "tempOverheatPowerPenalty": 0.10,
+  "tempOverheatFailFactor": 2.0,
+  "comboResetStraightMeters": 220,
+  "driftHeatFactor": 1.30,
+
+  // --- 6.1 drift score --------------------------------------------------------------
+  "scoreBasePerMeter": 10,
+  "angleMultBase": 0.50,
+  "angleMultSpan": 90,
+  "speedMultDivisor": 120,
+  "speedMultMin": 0.40,
+  "speedMultMax": 2.50,
+  "comboMultStep": 0.08,
+  "comboMultCap": 25,
+  "proximityMultSpan": 0.30,
+  "transitionMult": 1.25,
+
+  // --- 7.2 stats derivadas ------------------------------------------------------------
+  "accelBase": 40,
+  "accelPerPowerRatio": 0.09,
+  "topSpeedBase": 130,
+  "topSpeedPerPower": 0.20,
+  "topSpeedPerAero": 0.15,
+  "topSpeedPerKg": 0.010,
+
+  // --- 9.2 ajuste fino do diferencial ---------------------------------------------------
+  // Cada eixo e soma-zero-ish: nenhum slider e "mais e melhor" (GDD 9.4).
+  "tuningLockAngle": 20,
+  "tuningLockGrip": 12,
+  "tuningAccelInitiation": 18,
+  "tuningAccelStability": 14,
+  "tuningDecelTransition": 20,
+  "tuningDecelBadRisk": 0.06,
+
+  // --- 8.3 traits ------------------------------------------------------------------------
+  "traitLightChassisWeightFactor": 0.92,
+  "traitLightChassisStability": -10,
+  "traitRawTorqueInitiation": 20,
+  "traitRawTorqueGrip": -8,
+  "traitAllWheelWeatherRelief": 0.50,
+  "traitAllWheelAngle": -15,
+  "traitMidEngineTransition": 25,
+  "traitMidEngineBadFactor": 1.30,
+  "traitFactoryCooling": 30,
+  "traitStreetCarUrbanCash": 1.20,
+  "traitStreetCarMountainCash": 0.80,
+
+  // --- 11.4 / 11.6 horario, clima, trafego ---------------------------------------------
+  "timeOfDayGrip":   { "Day": 1.00, "Night": 0.97 },
+  "timeOfDayReward": { "Day": 1.00, "Night": 1.60 },
+  "timeOfDayRisk":   { "Day": 5, "Night": 25 },
+
+  "weatherReward": {
+    "Clear": 1.00, "Cloudy": 1.00, "Rain": 1.35, "HeavyRain": 1.80, "Fog": 1.25, "Snow": 1.60
+  },
+  "weatherRisk": {
+    "Clear": 0, "Cloudy": 2, "Rain": 18, "HeavyRain": 30, "Fog": 20, "Snow": 34
+  },
+
+  "trafficReward": { "None": 1.00, "Light": 1.05, "Medium": 1.12, "Heavy": 1.22 },
+  "trafficRisk":   { "None": 0, "Light": 4, "Medium": 10, "Heavy": 18 },
+
+  "rewardMultCap": 4.5,
+
+  // --- 12 risco e falha --------------------------------------------------------------------
+  // Faixas exibidas na UI: BAIXO / MEDIO / ALTO / EXTREMO (GDD 12.1).
+  "riskBandMedium": 25,
+  "riskBandHigh": 50,
+  "riskBandExtreme": 75,
+
+  "riskTierFactor": 6,
+  "riskTrackFactor": 0.35,
+  "styleRiskBias": { "Safe": -20, "Balanced": 0, "Aggressive": 15, "Reckless": 35 },
+  "riskDefenseDivisor": 4,
+  // O apendice B parte de 0.004. A ferramenta da 21.1 moveu para 0.0012 quando
+  // riskMult virou exponencial - os dois numeros ancoram os mesmos dois pontos da
+  // secao 12.3 (~4% em risco medio, ~28% em extremo com build fragil).
+  "failBasePerSegment": 0.0012,
+  "failReliabilityDivisor": 200,
+  "riskFailExponent": 3.5,
+  "failDamageMin": 8,
+  "failDamageMax": 25,
+  "failTimePenaltySeconds": 2.5,
+  "failSpeedPenalty": 0.45,
+  "collisionDamageMin": 3,
+  "collisionDamageMax": 9,
+  "collisionSpeedPenalty": 0.25,
+  "collisionTimePenaltySeconds": 0.8,
+  "damageStatPenaltyAt100": 0.35,
+  "proximityCollisionBase": 0.13,
+  "wearOverdriveThreshold": 0.85,
+  "bothSidesCollisionFactor": 1.35,
+
+  // --- 14 progressao ---------------------------------------------------------------------------
+  "stagesPerTier": 20,
+  "stageDifficultyStep": 0.04,
+  "stageRewardStep": 0.06,
+  "softCapStage": 12,
+  "softCapStrength": 0.5,
+
+  // --- 15 economia -------------------------------------------------------------------------------
+  "cashPerScore": 0.02,
+  "xpPerScore": 0.001,
+  "positionMultipliers": [1.00, 0.82, 0.68, 0.55, 0.45, 0.38],
+  "upgradeCostBase": 120,
+  "upgradeCostTierExponent": 1.6,
+  "upgradeCostLevelBase": 1.16,
+  "repairCostPerDamage": 6,
+  "repairCostTierFactor": 0.3,
+  "repairCostReliabilityDivisor": 300,
+  "garageSlotCostBase": 5000,
+  "garageSlotCostGrowth": 2.4,
+  "salvageScrapBase": 4,
+  "salvageRarityGrowth": 2.2,
+  "salvageItemLevelFactor": 0.35,
+  "reputationPerWin": 3,
+  "reputationPerPodium": 1,
+
+  // --- 10 loot -------------------------------------------------------------------------------------
+  "dropChanceBase": 0.35,
+  "dropChancePerRisk": 0.003,
+  "dropChanceScoreDivisor": 400000,
+  "dropChanceMax": 0.95,
+  "affixCountCommon": 1,
+  "affixCountUncommon": 2,
+  "affixCountRare": 3,
+  "affixCountEpic": 4,
+  "affixCountLegendary": 4,
+  "rarePassiveChance": 0.40,
+  "negativeAffixChance": 0.22,
+  "negativeAffixValueBonus": 0.35,
+  "rarityValueScale": 0.18,
+
+  // --- 3.6 interacao presente ------------------------------------------------------------------------
+  // O teto de uplift NAO e assumido: e medido sobre 1.000 corridas (GDD 6.2) e o teste
+  // de balanceamento falha fora de [0,20 - 0,30]. O parafuso e promotableCurveFraction.
+  "perfectEntryWindowSeconds": 0.45,
+  "promotableCurveFraction": 0.80,
+  "presenceUpliftMin": 0.20,
+  "presenceUpliftMax": 0.30,
+  "collectibleDroneChance": 0.25,
+  "collectibleHotLapChance": 0.167,
+  "collectibleRepChance": 0.10,
+  "collectibleDroneCashFactor": 0.35,
+  "collectibleHotLapDropBonus": 0.25,
+  "collectibleRepFlat": 2,
+
+  // --- 17 offline ----------------------------------------------------------------------------------------
+  "offlineCapHoursBase": 8,
+  "offlineCapHoursPerUpgrade": 2,
+  "offlineCapHoursMax": 24,
+  "offlineSampleK": 300,
+  "interRaceDelaySeconds": 4,
+  "offlineParityTolerance": 0.08,
+
+  // --- 11.4 tempo de jogo ---------------------------------------------------------------------------------
+  "realSecondsPerGameDay": 7200,
+
+  // --- 19.2 camera -----------------------------------------------------------------------------------------
+  // Alvo: 30-40% mais alta que a linha de base do Horizon Chase, com o angulo de arfagem
+  // correspondente. E a decisao que faz o yaw ficar legivel - calibrar na Fase 1.
+  "cameraHeightMultiplier": 1.35,
+  "cameraBaseHeight": 3.2,
+  "cameraBaseDistance": 8.0,
+  "cameraPitchDegrees": 14,
+  "cameraSpeedPullback": 0.02,
+  "cameraDriftLateralOffset": 0.05,
+  "cameraFovBase": 60,
+  "cameraFovPerSpeed": 0.06,
+  "cameraFovPerAngle": 0.10,
+  "cameraDamping": 6.0,
+
+  // --- 20.4 desempenho -------------------------------------------------------------------------------------
+  "simRaceBudgetMs": 0.3,
+  "autoEquipSampleRaces": 200
+}

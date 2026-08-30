@@ -1,0 +1,63 @@
+// Passivas condicionais. GDD 0.2 secao 10.4.
+//
+// E aqui que o buildcraft fica interessante, porque elas interagem com PISTA, CLIMA e
+// HORARIO - nao com "mais um numero". Uma passiva que so soma sem condicao poderia ter
+// sido um afixo.
+//
+// So a partir de Rare, e em Rare so em 40% das vezes (GDD 10.2).
+{
+  "passives": [
+    {
+      "id": "pas_night_score",
+      "name": "+22% de Drift Score em pistas noturnas",
+      "kind": "ScoreAtNight", "magnitude": 0.22,
+      "minRarity": "Rare", "weight": 1.0
+    },
+    {
+      "id": "pas_speed_score",
+      "name": "+8% de Drift Score acima de 120 km/h",
+      "kind": "ScoreAboveSpeed", "magnitude": 0.08, "magnitude2": 120,
+      "minRarity": "Rare", "weight": 1.0,
+      "slots": ["Engine", "Turbo", "Transmission", "AeroWeight"]
+    },
+    {
+      "id": "pas_combo_perfect",
+      "name": "Perfect concede +2 de combo em vez de +1",
+      "kind": "ComboOnPerfect", "magnitude": 2,
+      "minRarity": "Epic", "weight": 0.6,
+      "slots": ["Differential", "Suspension"]
+    },
+    {
+      "id": "pas_combo_duration",
+      "name": "+15% de duracao de combo",
+      "kind": "ComboCapBonus", "magnitude": 0.15,
+      "minRarity": "Rare", "weight": 0.9
+    },
+    {
+      "id": "pas_rain_grace",
+      "name": "Chuva nao reduz o grip nos primeiros 30% da corrida",
+      "kind": "RainGraceFraction", "magnitude": 0.30,
+      "minRarity": "Rare", "weight": 0.8,
+      "slots": ["Tires", "Suspension"]
+    },
+    {
+      "id": "pas_prox_cash",
+      "name": "Cada colisao evitada por proximidade concede +5% de cash",
+      "kind": "CashPerProximity", "magnitude": 0.05,
+      "minRarity": "Rare", "weight": 0.7,
+      "slots": ["Brakes", "Suspension", "AeroWeight"]
+    },
+    {
+      "id": "pas_drop_chance",
+      "name": "+12% de chance de drop nesta corrida",
+      "kind": "DropChanceBonus", "magnitude": 0.12,
+      "minRarity": "Epic", "weight": 0.5
+    },
+    {
+      "id": "pas_cash",
+      "name": "+10% de cash",
+      "kind": "CashBonus", "magnitude": 0.10,
+      "minRarity": "Rare", "weight": 0.9
+    }
+  ]
+}

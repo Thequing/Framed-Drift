@@ -3,30 +3,70 @@
 //  GDD 0.2  secao 10.1
 // -----------------------------------------------------------------------------
 
-using System;
+using FramedDrift.Core;
+using FramedDrift.Simulation;
 using FramedDrift.Simulation.Model;
 
 namespace FramedDrift.Garage
 {
     /// <summary>
-    /// Uma peca concreta no inventario. Serializada no save.
-    /// A Seed reproduz a rolagem inteira - guardar a seed em vez dos valores mantem
-    /// o save pequeno e permite rebalancear pools sem invalidar inventarios.
+    /// A visao de runtime de uma peca: o registro salvo (<see cref="SavedPart"/>) mais a
+    /// rolagem ja materializada (<see cref="RolledPart"/>).
+    ///
+    /// A separacao existe porque o save guarda so a SEED (GDD 10.1) - o que mantem o
+    /// arquivo pequeno e permite rebalancear pools sem invalidar inventarios - enquanto a
+    /// UI precisa dos numeros prontos para desenhar o tooltip.
     /// </summary>
-    [Serializable]
-    public class PartInstance
+    public sealed class PartInstance
     {
-        /// <summary>Referencia a PartData artesanal.</summary>
-        public string BaseId;
+        public readonly SavedPart Saved;
+        public readonly RolledPart Rolled;
 
-        public Rarity Rarity;
+        public PartInstance(SavedPart saved, RolledPart rolled)
+        {
+            Saved = saved;
+            Rolled = rolled;
+        }
 
-        /// <summary>Deriva do tier da pista onde caiu.</summary>
-        public int ItemLevel;
+        public int Uid { get { return Saved.Uid; } }
+        public PartSlot Slot { get { return Rolled.Slot; } }
+        public Rarity Rarity { get { return Rolled.Rarity; } }
+        public string DisplayName { get { return Rolled.DisplayName; } }
+        public bool Locked { get { return Saved.Locked; } }
 
-        /// <summary>Reproduz a rolagem de afixos e passiva.</summary>
-        public ulong Seed;
+        /// <summary>
+        /// Materializa uma peca salva. A seed zero e a peca de FABRICA - sem afixos -
+        /// que o carro inicial vem equipado e a loja vende.
+        /// </summary>
+        public static PartInstance Materialize(SavedPart saved, LootRoller loot)
+        {
+            RolledPart rolled = saved.Seed == 0UL
+                ? loot.Factory(saved.BaseId)
+                : loot.Materialize(new Simulation.Outcomes.PartDrop
+                {
+                    BaseId = saved.BaseId,
+                    Rarity = saved.Rarity,
+                    ItemLevel = saved.ItemLevel,
+                    Seed = saved.Seed,
+                });
 
-        // TODO(Fase 9): Affixes (0-4) e Passive (0-1, Rare+) materializados da Seed.
+            return new PartInstance(saved, rolled);
+        }
+
+        /// <summary>Texto de tooltip completo. A cor codifica raridade e nada mais (GDD 18.5).</summary>
+        public string Describe()
+        {
+            var sb = new System.Text.StringBuilder();
+            sb.Append(Rolled.DisplayName).Append("  ").Append(Rarity);
+            if (Rolled.ItemLevel > 0) sb.Append("  iLvl ").Append(Rolled.ItemLevel);
+
+            for (int i = 0; i < Rolled.Affixes.Length; i++)
+                sb.Append('\n').Append("  ").Append(Rolled.Affixes[i].Describe());
+
+            if (Rolled.HasPassive)
+                sb.Append("\n  ").Append(Rolled.PassiveText);
+
+            return sb.ToString();
+        }
     }
 }

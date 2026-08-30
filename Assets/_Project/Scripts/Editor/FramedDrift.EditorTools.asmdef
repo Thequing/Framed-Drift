@@ -1,0 +1,27 @@
+{
+    "name": "FramedDrift.EditorTools",
+    "rootNamespace": "FramedDrift.EditorTools",
+    "references": [
+        "FramedDrift.Simulation",
+        "FramedDrift.Data",
+        "FramedDrift.Core",
+        "FramedDrift.Garage",
+        "FramedDrift.Progression",
+        "FramedDrift.Automation",
+        "FramedDrift.App",
+        "FramedDrift.Racing",
+        "FramedDrift.UI",
+        "FramedDrift.Bootstrap"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

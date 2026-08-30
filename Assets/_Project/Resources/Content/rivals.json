@@ -1,0 +1,25 @@
+// Rivais. GDD 0.2 secao 13.1. MVP: um (secao 22.1).
+//
+// Rivais sao carros REAIS com build real, resolvidos pelo MESMO solucionador. E isso que
+// torna a build deles legivel, contra-atacavel e, quando derrotados, dropavel: eles
+// largam a peca que estavam usando.
+//
+// Cada rival ensina uma licao. AKIRA ensina a tensao central da secao 3.5: ele vence a
+// corrida e perde no score, e o jogador precisa ver isso lado a lado na tela de resultado.
+{
+  "rivals": [
+    {
+      "id": "akira",
+      "name": "AKIRA",
+      "car": "kanto_ae",
+      "style": "Aggressive",
+      "tierIndex": 0,
+      "signaturePart": "dif_lsd2way",
+      "lesson": "Vencer nao e tudo: ele chega na frente e perde no Drift Score.",
+      "statBonus": {
+        "Power": 45, "Grip": 8, "Braking": 10, "Steering": 6,
+        "Initiation": 6, "Angle": -6, "DriftControl": 4
+      }
+    }
+  ]
+}

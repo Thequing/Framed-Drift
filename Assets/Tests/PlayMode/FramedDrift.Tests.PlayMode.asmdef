@@ -11,7 +11,9 @@
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
         "FramedDrift.Racing",
-        "FramedDrift.UI"
+        "FramedDrift.UI",
+        "FramedDrift.App",
+        "FramedDrift.Bootstrap"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -1,0 +1,72 @@
+// 12 afixos. GDD 0.2 secoes 10.3 e 22.1.
+//
+// Rolados de um pool especifico do slot, com valor dentro de faixa. Duas pecas do mesmo
+// tipo e raridade servindo a builds completamente diferentes - esse e o motor do loot
+// chase (GDD 10.3).
+//
+// "sign" e o sinal do delta na stat. "drawback" e outra coisa: diz se o afixo PREJUDICA
+// a build. Nao sao a mesma pergunta - "-25 kg" tem sinal negativo e e um ganho.
+// Uma peca que carrega um drawback rola os OUTROS afixos com negativeAffixValueBonus a
+// mais: e assim que o trade-off vira peca de alto risco em vez de peca ruim.
+{
+  "affixes": [
+    {
+      "id": "af_power", "name": "Potencia", "stat": "Power",
+      "min": 6, "max": 14, "perItemLevel": 0.6, "sign": 1, "weight": 1.2,
+      "slots": ["Engine", "Turbo"]
+    },
+    {
+      "id": "af_light", "name": "Aliviado", "stat": "Weight",
+      "min": 8, "max": 25, "perItemLevel": 0.8, "sign": -1, "weight": 0.9,
+      "slots": ["AeroWeight", "Transmission", "Brakes"]
+    },
+    {
+      "id": "af_grip", "name": "Aderencia", "stat": "Grip",
+      "min": 3, "max": 9, "perItemLevel": 0.30, "sign": 1, "weight": 1.1,
+      "slots": ["Suspension", "Tires"]
+    },
+    {
+      "id": "af_steering", "name": "Resposta", "stat": "Steering",
+      "min": 3, "max": 9, "perItemLevel": 0.28, "sign": 1, "weight": 1.0,
+      "slots": ["Suspension", "Brakes"]
+    },
+    {
+      "id": "af_stability", "name": "Aprumo", "stat": "Stability",
+      "min": 3, "max": 10, "perItemLevel": 0.30, "sign": 1, "weight": 1.0,
+      "slots": ["Suspension", "AeroWeight", "Differential"]
+    },
+    {
+      "id": "af_initiation", "name": "Entrada", "stat": "Initiation",
+      "min": 4, "max": 12, "perItemLevel": 0.35, "sign": 1, "weight": 1.0,
+      "slots": ["Differential", "Turbo", "Tires"]
+    },
+    {
+      "id": "af_angle", "name": "Angulo", "stat": "Angle",
+      "min": 4, "max": 12, "perItemLevel": 0.35, "sign": 1, "weight": 0.9,
+      "slots": ["Differential", "Suspension", "Tires"]
+    },
+    {
+      "id": "af_control", "name": "Controle", "stat": "DriftControl",
+      "min": 3, "max": 10, "perItemLevel": 0.30, "sign": 1, "weight": 1.0
+    },
+    {
+      "id": "af_cooling", "name": "Arrefecido", "stat": "Cooling",
+      "min": 4, "max": 12, "perItemLevel": 0.30, "sign": 1, "weight": 0.8,
+      "slots": ["Engine", "Turbo", "AeroWeight"]
+    },
+
+    // --- os tres que cobram o preco -------------------------------------------
+    {
+      "id": "af_d_control", "name": "Nervoso", "stat": "DriftControl",
+      "min": 2, "max": 6, "perItemLevel": 0.12, "sign": -1, "drawback": true, "weight": 1.0
+    },
+    {
+      "id": "af_d_grip", "name": "Escorregadio", "stat": "Grip",
+      "min": 2, "max": 7, "perItemLevel": 0.14, "sign": -1, "drawback": true, "weight": 1.0
+    },
+    {
+      "id": "af_d_reliability", "name": "Fragil", "stat": "Reliability",
+      "min": 3, "max": 9, "perItemLevel": 0.18, "sign": -1, "drawback": true, "weight": 1.0
+    }
+  ]
+}

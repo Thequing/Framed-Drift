@@ -1,0 +1,96 @@
+// Roster do MVP. GDD 0.2 secoes 8.2, 8.5.
+//
+// D-04: carros sao POUCOS e desenhados a mao, com identidade mecanica forte. Nenhum e
+// estritamente melhor que outro: cada um tem um eixo de excelencia, um de fraqueza e uma
+// trait que muda COMO ele e jogado (GDD 8.1).
+//
+// Nomes sao ficticios e devem permanecer assim - nenhuma marca ou modelo real, por
+// licenciamento (GDD 8.5).
+//
+// placeholderColor pinta o cubo enquanto o modelo nao existe. Restricoes de silhueta que
+// o modelo tera de respeitar (GDD 19.1): legivel a 360x48 px, e com YAW legivel a partir
+// da camera traseira elevada - teto e capo assimetricos, faixa atravessando o eixo
+// longitudinal, rodas visiveis. Um carro cujo topo e uma mancha uniforme falha o teste.
+{
+  "cars": [
+    {
+      "id": "kite_130",
+      "name": "Kite 130",
+      "layout": "FF",
+      "tier": "D",
+      "trait": "LightChassis",
+      "buyCost": 0,
+      "placeholderColor": "D8D8C8",
+      "unlock": {},
+
+      // Inicial: barato, previsivel, teto baixo. Initiation 48 e escolhido para que ele
+      // derrape as curvas suaves da pista inicial mas nao TODAS - o jogador precisa ver
+      // a diferenca quando trocar de carro.
+      "stats": {
+        "Power": 118, "Weight": 940,
+        "Grip": 58, "Braking": 52, "Steering": 55, "Stability": 55,
+        "Initiation": 48, "Angle": 42, "DriftControl": 44, "Transition": 55,
+        "Reliability": 72, "Cooling": 60, "Aero": 10
+      },
+
+      "tuningRange": {
+        "lockMin": 0.2, "lockMax": 0.8,
+        "accelMin": 0.2, "accelMax": 0.8,
+        "decelMin": 0.2, "decelMax": 0.8
+      }
+    },
+
+    {
+      "id": "kanto_ae",
+      "name": "Kanto AE",
+      "layout": "FR",
+      "tier": "D",
+      "trait": "RawTorque",
+      "buyCost": 14000,
+      "placeholderColor": "E8E8E8",
+      "unlock": { "reputation": 12 },
+
+      // O carro de drift: teto alto, exige tuning. Com Torque bruto (+20 Initiation)
+      // ele derrapa praticamente toda curva - e isso e a identidade dele, nao um bug.
+      "stats": {
+        "Power": 165, "Weight": 1080,
+        "Grip": 62, "Braking": 60, "Steering": 70, "Stability": 62,
+        "Initiation": 52, "Angle": 68, "DriftControl": 62, "Transition": 64,
+        "Reliability": 66, "Cooling": 58, "Aero": 14
+      },
+
+      "tuningRange": {
+        "lockMin": 0.0, "lockMax": 1.0,
+        "accelMin": 0.0, "accelMax": 1.0,
+        "decelMin": 0.0, "decelMax": 1.0
+      }
+    },
+
+    {
+      "id": "brute_v8",
+      "name": "Brute V8",
+      "layout": "FR",
+      "tier": "D",
+      "trait": "RacingHeritage",
+      "buyCost": 32000,
+      "placeholderColor": "C05038",
+      "unlock": { "reputation": 25 },
+
+      // Desbloqueio da primeira hora: risco/recompensa. Angulo alto e Heranca de corrida
+      // (Perfect vale combo +2) empurram o score; DriftControl 50 e Reliability 55 fazem
+      // ele falhar mais. E a build de glass cannon da secao 12.4 vestida de carro.
+      "stats": {
+        "Power": 305, "Weight": 1420,
+        "Grip": 55, "Braking": 48, "Steering": 52, "Stability": 68,
+        "Initiation": 58, "Angle": 74, "DriftControl": 50, "Transition": 44,
+        "Reliability": 55, "Cooling": 45, "Aero": 8
+      },
+
+      "tuningRange": {
+        "lockMin": 0.1, "lockMax": 0.95,
+        "accelMin": 0.1, "accelMax": 0.95,
+        "decelMin": 0.1, "decelMax": 0.9
+      }
+    }
+  ]
+}

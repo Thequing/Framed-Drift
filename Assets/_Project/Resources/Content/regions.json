@@ -1,0 +1,42 @@
+// Regioes. GDD 0.2 secao 11.1.
+//
+// MVP: uma regiao (Cidade), como manda a secao 22.1. As vizinhas ja estao nomeadas em
+// "neighbors" porque o mapa e um GRAFO, nao uma lista - a estrutura precisa existir
+// antes do conteudo, ou a segunda regiao vira um "proximo nivel" e nao uma escolha.
+//
+// Cada regiao precisa alterar geometria, iluminacao, clima possivel, trafego, obstaculos,
+// eventos, drops e trilha - nao apenas textura (GDD 19.4).
+{
+  "regions": [
+    {
+      "id": "city",
+      "name": "Cidade",
+      "urban": true,
+      "mountain": false,
+      "cashMultiplier": 1.00,
+      "scoreMultiplier": 1.00,
+      "reputationRequired": 0,
+      "neighbors": ["industrial", "coast"],
+
+      "modules": ["str_med", "gentle_l", "gentle_r", "sharp_l", "sharp_r", "scurve"],
+
+      // MVP: seco / chuva (GDD 22.1). Cidade favorece Transition e Braking.
+      "weather": [
+        { "type": "Clear",  "weight": 62 },
+        { "type": "Cloudy", "weight": 20 },
+        { "type": "Rain",   "weight": 18 }
+      ],
+
+      "partPool": [
+        "eng_stock", "eng_street", "eng_sport",
+        "tur_stock", "tur_sport",
+        "trn_stock", "trn_short",
+        "dif_open", "dif_street", "dif_lsd15", "dif_lsd2way",
+        "sus_stock", "sus_coilover",
+        "tir_street", "tir_drift", "tir_wet",
+        "brk_stock", "brk_sport",
+        "aer_stock", "aer_fiber"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,103 @@
+// Biblioteca de modulos autorais. GDD 0.2 secao 11.2.
+//
+// D-05: o gerador COMBINA estes modulos. Nenhuma geometria e gerada por ruido.
+// MVP: 6 modulos - reta media, curva suave E/D, curva fechada E/D, curva S.
+//
+// allowedNext e a regra de adjacencia da secao 11.3, e ela e AUTORAL: existe para
+// impedir sequencias ruins (dois grampos seguidos sem reta, S saindo de curva fechada),
+// nao para emergir de uma metrica. Vazio significa "qualquer um".
+{
+  "modules": [
+    {
+      "id": "str_med",
+      "name": "Reta Media",
+      "weight": 1.6,
+      "segment": {
+        "type": "Straight",
+        "length": 95,
+        "direction": "None",
+        "surface": "Asphalt",
+        "walls": "None",
+        "difficulty": 5
+      }
+    },
+
+    {
+      "id": "gentle_l",
+      "name": "Curva Suave Esquerda",
+      "weight": 1.3,
+      "segment": {
+        "type": "Gentle",
+        "length": 75,
+        "radius": 70,
+        "direction": "Left",
+        "surface": "Asphalt",
+        "walls": "None",
+        "difficulty": 76
+      }
+    },
+    {
+      "id": "gentle_r",
+      "name": "Curva Suave Direita",
+      "weight": 1.3,
+      "segment": {
+        "type": "Gentle",
+        "length": 75,
+        "radius": 70,
+        "direction": "Right",
+        "surface": "Asphalt",
+        "walls": "None",
+        "difficulty": 76
+      }
+    },
+
+    // Curva fechada: nunca duas seguidas. Depois dela vem reta ou suave.
+    {
+      "id": "sharp_l",
+      "name": "Curva Fechada Esquerda",
+      "weight": 1.0,
+      "allowedNext": ["str_med", "gentle_l", "gentle_r"],
+      "segment": {
+        "type": "Sharp",
+        "length": 55,
+        "radius": 32,
+        "direction": "Left",
+        "surface": "Asphalt",
+        "walls": "OneSide",
+        "difficulty": 92
+      }
+    },
+    {
+      "id": "sharp_r",
+      "name": "Curva Fechada Direita",
+      "weight": 1.0,
+      "allowedNext": ["str_med", "gentle_l", "gentle_r"],
+      "segment": {
+        "type": "Sharp",
+        "length": 55,
+        "radius": 32,
+        "direction": "Right",
+        "surface": "Asphalt",
+        "walls": "OneSide",
+        "difficulty": 92
+      }
+    },
+
+    // Curva S: o modulo de transicao. Tambem exige saida limpa.
+    {
+      "id": "scurve",
+      "name": "Curva S",
+      "weight": 0.9,
+      "allowedNext": ["str_med", "gentle_l", "gentle_r"],
+      "segment": {
+        "type": "SCurve",
+        "length": 90,
+        "radius": 45,
+        "direction": "Left",
+        "surface": "Asphalt",
+        "walls": "OneSide",
+        "difficulty": 98
+      }
+    }
+  ]
+}

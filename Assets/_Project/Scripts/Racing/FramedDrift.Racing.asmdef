@@ -5,7 +5,11 @@
         "FramedDrift.Simulation",
         "FramedDrift.Data",
         "FramedDrift.Core",
-        "FramedDrift.Garage"
+        "FramedDrift.Garage",
+        "FramedDrift.App",
+        "FramedDrift.Progression",
+        "FramedDrift.Automation",
+        "Unity.InputSystem"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
