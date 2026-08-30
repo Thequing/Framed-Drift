@@ -142,7 +142,7 @@ namespace FramedDrift.Racing
                     // a fumaca comunique.
                     float shape = Mathf.Sin(t * Mathf.PI);
                     float quality = QualityAngleFactor(outcome.QualityFinal);
-                    float side = _race.Track[i].Direction == TurnDirection.Left ? 1f : -1f;
+                    float side = _race.Track[i].Direction == TurnDirection.Left ? -1f : 1f;
                     yaw = outcome.Angle * 0.55f * shape * quality * side;
                 }
                 return;
