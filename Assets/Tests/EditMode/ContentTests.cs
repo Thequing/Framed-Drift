@@ -45,7 +45,14 @@ namespace FramedDrift.Tests.EditMode
             Assert.AreEqual(36, db.PartList.Count, "20 (D) + 8 (C) + 8 (B).");
             Assert.AreEqual(12, db.AffixList.Count, "GDD 22.1: o MVP tem 12 afixos.");
             Assert.AreEqual(6, db.Modules.Count, "GDD 22.1: o MVP tem 6 modulos.");
-            Assert.AreEqual(3, db.TrackList.Count, "GDD 22.1: o MVP tem 3 pistas.");
+            // Mesma historia das pecas: as 3 pistas da GDD 22.1 continuam sendo o tier D
+            // inteiro, e as 4 novas sao a escada de tier. Sem pista acima de D nenhuma
+            // corrida saia do tier D, e rewardScale, itemLevelCap e o corte de tier do
+            // loot ficavam todos inalcancaveis.
+            Assert.AreEqual(3, CountTracksAtTier(db, TierRank.D), "GDD 22.1: 3 pistas no tier D.");
+            Assert.AreEqual(2, CountTracksAtTier(db, TierRank.C), "2 pistas no tier C.");
+            Assert.AreEqual(2, CountTracksAtTier(db, TierRank.B), "2 pistas no tier B.");
+            Assert.AreEqual(7, db.TrackList.Count, "3 (D) + 2 (C) + 2 (B).");
             Assert.AreEqual(1, db.RegionList.Count, "GDD 22.1: o MVP tem 1 regiao.");
             Assert.AreEqual(1, db.RivalList.Count, "GDD 22.1: o MVP tem 1 rival.");
             Assert.AreEqual(8, System.Enum.GetValues(typeof(PartSlot)).Length, "GDD 9.1: oito slots.");
@@ -58,6 +65,14 @@ namespace FramedDrift.Tests.EditMode
             int n = 0;
             for (int i = 0; i < db.PartList.Count; i++)
                 if (db.PartList[i].Tier == tier) n++;
+            return n;
+        }
+
+        private static int CountTracksAtTier(ContentDatabase db, TierRank tier)
+        {
+            int n = 0;
+            for (int i = 0; i < db.TrackList.Count; i++)
+                if (db.TrackList[i].Tier == tier) n++;
             return n;
         }
 

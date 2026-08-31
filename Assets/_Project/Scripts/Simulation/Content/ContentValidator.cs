@@ -145,6 +145,18 @@ namespace FramedDrift.Simulation.Content
                 if (!db.Regions.ContainsKey(t.RegionId))
                     errors.Add("Pista " + t.Id + " aponta para a regiao inexistente " + t.RegionId + ".");
 
+                // Uma pista nunca pode abrir antes do proprio tier.
+                //
+                // O tier da CORRIDA sai da pista, e com ele o corte de tier do loot. Uma
+                // pista tier B liberada aos 10 de reputacao entregaria peca tier B a um
+                // jogador ainda no tier D - a escada inteira pulada por um numero digitado
+                // errado, e sem nenhum sintoma ate alguem notar o drop.
+                TierDef tier = db.Tiers != null && (int)t.Tier < db.Tiers.Length ? db.Tiers[(int)t.Tier] : null;
+                if (tier != null && t.ReputationRequired < tier.ReputationRequired)
+                    errors.Add("Pista " + t.Id + " (tier " + t.Tier + ") abre aos "
+                               + t.ReputationRequired + " de reputacao, antes do proprio tier ("
+                               + tier.ReputationRequired + ").");
+
                 if (t.ModuleIds == null || t.ModuleIds.Length == 0)
                 {
                     errors.Add("Pista " + t.Id + " nao tem modulos.");

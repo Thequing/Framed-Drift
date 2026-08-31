@@ -1,4 +1,4 @@
-// Tres pistas fixas do MVP. GDD 0.2 secoes 11 e 22.1.
+// Sete pistas fixas: 3 no tier D, 2 em C, 2 em B. GDD 0.2 secoes 11, 14.2 e 22.1.
 //
 // Montadas a mao: o gerador procedural e a Fase 12, e produz exatamente este formato.
 // Escala da secao 5.1: 18-30 segmentos, ~1,2-2,0 km.
@@ -67,6 +67,113 @@
         "gentle_l", "str_med", "sharp_l", "gentle_r",
         "scurve", "str_med", "sharp_r", "gentle_l",
         "str_med", "gentle_r", "sharp_l", "str_med",
+        "gentle_l", "str_med"
+      ]
+    },
+
+    // =========================================================================
+    //  TIER C  -  reputacao 20. A promocao de tier acontece no mesmo ponto
+    //  (tiers.json), entao a pista de C abre junto com a vitrine de C.
+    //
+    //  O tier da CORRIDA sai da pista (RaceFactory), e e ele que governa
+    //  rarityWeights, itemLevelCap, difficultyScale, rewardScale e o corte de
+    //  tier do loot. Sem pista acima de D, nada disso jamais era exercitado.
+    //
+    //  ATENCAO ao baseTimeSeconds: estas pistas sao MAIS LONGAS que as de D e
+    //  ainda assim tem tRef MENOR. Nao e erro de digitacao. tRef e o tempo de
+    //  referencia do GRID (GDD 5.6), nao o tamanho da pista - e o grid de tier C
+    //  dirige carro de tier C. Em metros por segundo: city_loop pede 22,4 m/s do
+    //  pelotao; city_overpass_east pede 27,2 m/s.
+    //
+    //  Os valores sao CALIBRADOS, nao estimados: k = tRef / tempo-medio da build
+    //  do tier. city_loop usa k 1,094 e entrega os 68,3% de vitoria que a GDD
+    //  21.2 sanciona, entao a pista de entrada de cada tier usa ~1,087 e a
+    //  segunda ~1,072 - que e o degrau DENTRO do tier. TrackLadderTests mede.
+    // =========================================================================
+    {
+      "id": "city_overpass_east",
+      "name": "Centro - Elevado Leste",
+      "region": "city",
+      "tier": "C",
+      "baseTimeSeconds": 75,
+      "scoreMultiplier": 1.42,
+      "baseCash": 460,
+      "baseXp": 110,
+      "reputationRequired": 20,
+      "modules": [
+        "str_med", "gentle_r", "str_med", "scurve",
+        "str_med", "gentle_l", "sharp_r", "str_med",
+        "gentle_l", "gentle_r", "str_med", "sharp_l",
+        "gentle_r", "str_med", "scurve", "gentle_l",
+        "str_med", "sharp_r", "str_med", "gentle_l",
+        "scurve", "str_med", "gentle_r", "str_med"
+      ]
+    },
+
+    {
+      "id": "city_tunnel_north",
+      "name": "Centro - Tunel Norte",
+      "region": "city",
+      "tier": "C",
+      "baseTimeSeconds": 78,
+      "scoreMultiplier": 1.58,
+      "baseCash": 560,
+      "baseXp": 140,
+      "reputationRequired": 30,
+      "modules": [
+        "str_med", "sharp_l", "gentle_r", "scurve",
+        "str_med", "sharp_r", "gentle_l", "str_med",
+        "scurve", "gentle_r", "sharp_l", "str_med",
+        "gentle_l", "sharp_r", "gentle_r", "str_med",
+        "scurve", "str_med", "sharp_l", "gentle_l",
+        "str_med", "gentle_r", "sharp_r", "str_med",
+        "gentle_l", "str_med"
+      ]
+    },
+
+    // =========================================================================
+    //  TIER B  -  reputacao 45
+    // =========================================================================
+    {
+      "id": "city_beltway",
+      "name": "Centro - Marginal Completa",
+      "region": "city",
+      "tier": "B",
+      "baseTimeSeconds": 80,
+      "scoreMultiplier": 1.75,
+      "baseCash": 950,
+      "baseXp": 240,
+      "reputationRequired": 45,
+      "modules": [
+        "str_med", "gentle_l", "str_med", "gentle_r",
+        "scurve", "str_med", "sharp_l", "str_med",
+        "gentle_r", "str_med", "scurve", "gentle_l",
+        "str_med", "sharp_r", "gentle_l", "str_med",
+        "gentle_r", "scurve", "str_med", "sharp_l",
+        "gentle_r", "str_med", "gentle_l", "str_med",
+        "scurve", "gentle_r", "str_med", "str_med"
+      ]
+    },
+
+    {
+      // Quase tudo e curva, e o limite de 30 segmentos da secao 5.1 e o teto.
+      "id": "city_closed_circuit",
+      "name": "Centro - Circuito Fechado",
+      "region": "city",
+      "tier": "B",
+      "baseTimeSeconds": 85,
+      "scoreMultiplier": 1.95,
+      "baseCash": 1150,
+      "baseXp": 300,
+      "reputationRequired": 60,
+      "modules": [
+        "str_med", "sharp_r", "gentle_l", "scurve",
+        "gentle_r", "sharp_l", "str_med", "scurve",
+        "str_med", "sharp_r", "gentle_r", "sharp_l",
+        "gentle_l", "scurve", "str_med", "sharp_r",
+        "str_med", "gentle_l", "sharp_l", "gentle_r",
+        "scurve", "gentle_l", "str_med", "sharp_r",
+        "gentle_r", "str_med", "scurve", "str_med",
         "gentle_l", "str_med"
       ]
     }
