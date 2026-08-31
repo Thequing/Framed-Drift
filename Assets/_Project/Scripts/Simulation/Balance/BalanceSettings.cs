@@ -233,6 +233,8 @@ namespace FramedDrift.Simulation.Balance
         public float SalvageScrapBase;          // 4
         public float SalvageRarityGrowth;       // 2.2
         public float SalvageItemLevelFactor;    // 0.35
+        public float BlueprintFragmentChance;   // 0.15 - por corrida
+        public int BlueprintFragmentsPerBlueprint; // 5 - o "/5" da GDD 10.6
         public int ReputationPerWin;            // 3
         public int ReputationPerPodium;         // 1
 

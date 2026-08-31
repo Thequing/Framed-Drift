@@ -156,7 +156,7 @@ Unity.exe -batchmode -runTests -projectPath . -testPlatform EditMode
 Unity.exe -batchmode -runTests -projectPath . -testPlatform PlayMode
 ```
 
-**73 EditMode + 5 PlayMode, todos passando.** Eles nao sao testes de fumaca: sao os
+**90 EditMode + 6 PlayMode, todos passando.** Eles nao sao testes de fumaca: sao os
 criterios de saida da GDD 21.2 escritos como asserts.
 
 ### Harness offline
@@ -174,6 +174,8 @@ relatorio de balanceamento completo) em segundos, sem abrir o editor.
 | Vitorias na pista de entrada do tier C | 21.2 estendido: 55-75% | **68,8%** |
 | Vitorias na pista de entrada do tier B | 21.2 estendido: 55-75% | **63,7%** |
 | Cash/corrida D -> C -> B | 15.4: tem de subir | **348 -> 1.374 -> 3.738** |
+| Primeira planta completa | 10.6: objetivo de longo prazo | **121 corridas (~2,5 h ativas)** |
+| Pedacos de planta offline x online | D-02: +-8% | **dentro da faixa** |
 | Uplift por presenca | 3.6 / 6.2: 20-30% | **~24,5%** |
 | Falha em risco MEDIO | 21.2: 3-6% | **~4,1%** |
 | Build de drift x build de velocidade | 21.2: 1,8x-2,6x | **2,48x** |
@@ -224,6 +226,7 @@ recuperacao de backup.
    pista, e ha um problema conhecido esperando: `rewardMultCap` e 4,5 e o `rewardScale`
    de A ja e 3,80 e o de S 6,20 - o de S estoura o teto sozinho, antes de qualquer
    multiplicador de clima ou trafego. Subir A e S exige rever esse teto junto.
-7. **Blueprints.** `Crafting.Craft` exige um blueprint, `RaceRewards.BlueprintIds` nunca
-   e preenchido e o `LootRoller` nao rola nenhum: o craft direcionado da GDD 10.6 esta
-   escrito e inalcancavel.
+7. **Planta de CARRO.** A da peca esta fechada; a GDD 13.1 promete outra coisa -
+   "derrotar o mesmo rival tres vezes desbloqueia seu carro como blueprint". Nada conta
+   quantas vezes um rival foi derrotado (`RivalsDefeated` e uma lista de ids, sem
+   contagem), e `UnlockRule.BlueprintId` continua sem ninguem que o preencha.

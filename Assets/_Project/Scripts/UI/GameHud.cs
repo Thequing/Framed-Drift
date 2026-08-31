@@ -6,6 +6,7 @@
 using System.Collections.Generic;
 using FramedDrift.App;
 using FramedDrift.Core;
+using FramedDrift.Garage;
 using FramedDrift.Progression;
 using UnityEngine;
 
@@ -41,17 +42,24 @@ namespace FramedDrift.UI
         {
             EventBus.Subscribe<UnlockGranted>(OnUnlock);
             EventBus.Subscribe<RaceFinished>(OnRaceFinished);
+            EventBus.Subscribe<BlueprintCompleted>(OnBlueprint);
         }
 
         private void OnDisable()
         {
             EventBus.Unsubscribe<UnlockGranted>(OnUnlock);
             EventBus.Unsubscribe<RaceFinished>(OnRaceFinished);
+            EventBus.Unsubscribe<BlueprintCompleted>(OnBlueprint);
         }
 
         private void OnUnlock(UnlockGranted evt)
         {
             Toast(evt.Kind.ToUpperInvariant() + ": " + evt.DisplayName);
+        }
+
+        private void OnBlueprint(BlueprintCompleted evt)
+        {
+            Toast("PLANTA COMPLETA: " + evt.DisplayName.ToUpperInvariant());
         }
 
         private void OnRaceFinished(RaceFinished evt)

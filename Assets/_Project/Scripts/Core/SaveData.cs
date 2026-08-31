@@ -25,6 +25,14 @@ namespace FramedDrift.Core
         public bool Locked;
     }
 
+    /// <summary>Progresso parcial de uma planta. GDD 10.6.</summary>
+    [Serializable]
+    public class SavedBlueprint
+    {
+        public string PartId;
+        public int Fragments;
+    }
+
     /// <summary>Um preset nomeado: pecas + ajuste fino + estilo. GDD 9.5.</summary>
     [Serializable]
     public class SavedBuild
@@ -100,7 +108,20 @@ namespace FramedDrift.Core
 
         public List<string> UnlockedTracks = new List<string>();
         public List<string> UnlockedCars = new List<string>();
+
+        /// <summary>Plantas COMPLETAS, prontas para o craft. Uma some ao ser usada.</summary>
         public List<string> Blueprints = new List<string>();
+
+        /// <summary>
+        /// Pedacos de planta ainda incompletos: "1/5, 2/5..." da GDD 10.6.
+        ///
+        /// Separado das completas de proposito. O craft consome a planta INTEIRA, e
+        /// guardar as duas coisas na mesma lista faria "tenho a planta" e "estou juntando
+        /// a planta" virarem a mesma pergunta - que e exatamente a distincao que faz o
+        /// progresso parcial ser legivel na UI.
+        /// </summary>
+        public List<SavedBlueprint> BlueprintFragments = new List<SavedBlueprint>();
+
         public List<string> RivalsDefeated = new List<string>();
         public List<string> Achievements = new List<string>();
 
@@ -143,7 +164,7 @@ namespace FramedDrift.Core
     public class SaveData
     {
         /// <summary>Suba junto com toda mudanca de formato e escreva a migracao.</summary>
-        public const int CurrentVersion = 1;
+        public const int CurrentVersion = 2;
 
         public int Version = CurrentVersion;
         public string LastTimestampUtc;

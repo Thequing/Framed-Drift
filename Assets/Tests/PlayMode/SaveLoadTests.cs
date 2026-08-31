@@ -44,6 +44,40 @@ namespace FramedDrift.Tests.PlayMode
             _backupOfExistingSave = null;
         }
 
+        /// <summary>
+        /// Migracao v1 -> v2 (GDD 20.5): a v2 acrescentou Progress.BlueprintFragments.
+        ///
+        /// O JSON de um save v1 nao tem a chave. Se a lista chegasse null, o primeiro
+        /// pedaco de planta depois de atualizar o jogo estouraria NullReference - e num
+        /// save real, nao numa fixture.
+        /// </summary>
+        [Test]
+        public void SaveV1_MigratesToV2_WithUsableBlueprintList()
+        {
+            SaveManager.DeleteAll();
+
+            // Um v1 legitimo: sem a chave blueprintFragments em lugar nenhum.
+            const string v1 =
+                "{\"Version\":1,\"Cash\":500,\"Scrap\":10,\"Reputation\":7," +
+                "\"Progress\":{\"RegionId\":\"city\",\"TrackId\":\"city_loop\"," +
+                "\"TierIndex\":0,\"Stage\":1,\"Blueprints\":[]}}";
+
+            File.WriteAllText(SaveManager.SavePath, v1);
+
+            SaveData loaded = SaveManager.Load();
+
+            Assert.IsNotNull(loaded, "O save v1 tem de carregar.");
+            Assert.AreEqual(SaveData.CurrentVersion, loaded.Version, "A versao tem de ser migrada.");
+            Assert.AreEqual(500L, loaded.Cash, "Migrar nao pode perder o que ja existia.");
+            Assert.IsNotNull(loaded.Progress.BlueprintFragments,
+                "A lista nova precisa EXISTIR depois da migracao, nao ficar null.");
+            Assert.AreEqual(0, loaded.Progress.BlueprintFragments.Count);
+
+            // E precisa ser utilizavel: e aqui que o NullReference apareceria.
+            loaded.Progress.BlueprintFragments.Add(new SavedBlueprint { PartId = "eng_sport", Fragments = 1 });
+            Assert.AreEqual(1, loaded.Progress.BlueprintFragments.Count);
+        }
+
         private static SaveData SampleSave()
         {
             var save = new SaveData

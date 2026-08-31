@@ -231,6 +231,8 @@ namespace FramedDrift.Simulation.Content
             b.SalvageScrapBase = j["salvageScrapBase"].AsFloat();
             b.SalvageRarityGrowth = j["salvageRarityGrowth"].AsFloat();
             b.SalvageItemLevelFactor = j["salvageItemLevelFactor"].AsFloat();
+            b.BlueprintFragmentChance = j["blueprintFragmentChance"].AsFloat();
+            b.BlueprintFragmentsPerBlueprint = j["blueprintFragmentsPerBlueprint"].AsInt();
             b.ReputationPerWin = j["reputationPerWin"].AsInt();
             b.ReputationPerPodium = j["reputationPerPodium"].AsInt();
 

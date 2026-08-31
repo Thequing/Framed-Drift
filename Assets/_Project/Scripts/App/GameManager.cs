@@ -269,6 +269,12 @@ namespace FramedDrift.App
             for (int i = 0; i < report.KeptDrops.Count; i++)
                 if (Inventory.Add(report.KeptDrops[i]) == null) break;
 
+            // Pedaco de planta nao ocupa slot, entao a ausencia nunca os perde por
+            // inventario cheio - ao contrario dos drops acima, que param no primeiro que
+            // nao couber.
+            for (int i = 0; i < report.BlueprintFragments.Count; i++)
+                Crafting.AddBlueprintFragment(report.BlueprintFragments[i]);
+
             Missions.RecordOffline(report);
             Reputation.Evaluate();
 
@@ -429,6 +435,9 @@ namespace FramedDrift.App
 
             Economy.AddCash(rewards.Cash);
             Economy.AddReputation(rewards.Reputation);
+
+            for (int i = 0; i < rewards.BlueprintIds.Length; i++)
+                Crafting.AddBlueprintFragment(rewards.BlueprintIds[i]);
 
             car.ApplyRaceDamage(CurrentResult.Damage);
             car.Saved.Xp += rewards.Xp;

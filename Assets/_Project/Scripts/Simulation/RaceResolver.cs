@@ -58,8 +58,8 @@ namespace FramedDrift.Simulation
             DriftScorer.Context scoreCtx = Scorer.BuildContext(race);
             long score = Scorer.Score(result.Timeline, in scoreCtx);
 
-            var lootRng = new RngStreams(race.Seed).Loot;
-            RaceRewards rewards = ComputeRewards(race, result, score, haul, lootRng);
+            var streams = new RngStreams(race.Seed);
+            RaceRewards rewards = ComputeRewards(race, result, score, haul, streams.Loot, streams.Events);
 
             result.Rewards = rewards;
             result.CollectiblesTaken = haul.Count;
@@ -87,7 +87,8 @@ namespace FramedDrift.Simulation
         // --- recompensa (15.2) ------------------------------------------------------
 
         private RaceRewards ComputeRewards(RaceInstance race, RaceResult result, long score,
-                                           CollectibleHaul haul, DeterministicRng lootRng)
+                                           CollectibleHaul haul, DeterministicRng lootRng,
+                                           DeterministicRng eventRng)
         {
             var b = _balance;
 
@@ -122,12 +123,18 @@ namespace FramedDrift.Simulation
 
             PartDrop[] drops = Loot.RollDrops(race, result, score, haul.DropChanceBonus, lootRng);
 
+            string fragment = Loot.RollBlueprintFragment(race, eventRng);
+            string[] blueprints = fragment == null
+                ? RaceRewards.NoBlueprints
+                : new[] { fragment };
+
             return new RaceRewards
             {
                 Cash = (long)System.Math.Floor(cash),
                 Xp = (int)System.Math.Floor(xp),
                 Reputation = reputation,
                 Drops = drops,
+                BlueprintIds = blueprints,
                 DriftScore = score,
             };
         }

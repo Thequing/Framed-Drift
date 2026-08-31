@@ -4,6 +4,7 @@
 // -----------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
@@ -142,9 +143,20 @@ namespace FramedDrift.Core
 
             if (data.Version < 1)
             {
-                // Formato pre-1: nada a fazer alem de marcar. O primeiro degrau real de
-                // migracao entra aqui quando a versao 2 existir.
+                // Formato pre-1: nada a fazer alem de marcar.
                 data.Version = 1;
+            }
+
+            if (data.Version < 2)
+            {
+                // v2 acrescentou Progress.BlueprintFragments (GDD 10.6). Um save v1 nunca
+                // juntou pedaco nenhum, entao a lista vazia E o estado correto - mas ela
+                // precisa EXISTIR: JsonUtility deixa null o campo ausente no JSON, e todo
+                // acesso depois disso seria NullReference.
+                if (data.Progress != null && data.Progress.BlueprintFragments == null)
+                    data.Progress.BlueprintFragments = new List<SavedBlueprint>();
+
+                data.Version = 2;
             }
 
             data.Version = SaveData.CurrentVersion;

@@ -78,6 +78,51 @@ namespace FramedDrift.Simulation
         }
 
         /// <summary>
+        /// Um pedaco de planta, ou null. GDD 10.6.
+        ///
+        /// Roda no fluxo de EVENTOS, nunca no de loot (GDD 20.3 / 15.1, que lista planta
+        /// como vinda de "drops raros, rivais, eventos"). Nao e detalhe: consumir o fluxo
+        /// de loot aqui deslocaria toda a sequencia de drops ja existente, e uma seed
+        /// antiga passaria a render outras pecas.
+        ///
+        /// O alvo e sorteado com peso INVERSO ao dropWeight. A planta existe para cortar
+        /// a cauda do RNG (10.6), entao ela precisa apontar para a peca que quase nunca
+        /// cai - sortear com o peso normal faria a planta repetir o que o loot ja da.
+        ///
+        /// Peca de serie (buyCost 0) fica de fora: ela e gratis e ja vem montada, entao
+        /// uma planta dela seria progresso gasto em nada. Sao 7 das 20 bases tier D, e
+        /// inclui-las diluia um terco dos pedacos.
+        /// </summary>
+        public string RollBlueprintFragment(RaceInstance race, DeterministicRng rng)
+        {
+            var b = _balance;
+            if (b.BlueprintFragmentChance <= 0f) return null;
+            if (!rng.Chance(b.BlueprintFragmentChance)) return null;
+
+            string[] pool = race.PartPool;
+            if (pool == null || pool.Length == 0) return null;
+
+            int maxTier = MathUtil.Clamp(race.TierIndex, 0, (int)TierRank.S);
+
+            var weights = new float[pool.Length];
+            bool any = false;
+            for (int i = 0; i < pool.Length; i++)
+            {
+                PartDef def = _content.Part(pool[i]);
+                if ((int)def.Tier > maxTier) continue;
+                if (def.DropWeight <= 0f) continue;
+                if (def.BuyCost <= 0L) continue;   // peca de serie: planta dela nao vale nada
+
+                weights[i] = 1f / def.DropWeight;
+                any = true;
+            }
+            if (!any) return null;
+
+            int index = rng.WeightedIndex(weights);
+            return index < 0 ? null : pool[index];
+        }
+
+        /// <summary>
         /// Sorteia a base, do pool da regiao, LIMITADO AO TIER DA CORRIDA.
         ///
         /// O pool da regiao lista todas as pecas que existem ali, de D a S. Sem o corte

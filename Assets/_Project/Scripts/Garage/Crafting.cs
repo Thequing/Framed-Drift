@@ -13,6 +13,13 @@ using UnityEngine;
 
 namespace FramedDrift.Garage
 {
+    /// <summary>Publicado quando o ultimo pedaco fecha uma planta. GDD 10.6.</summary>
+    public struct BlueprintCompleted
+    {
+        public string PartId;
+        public string DisplayName;
+    }
+
     /// <summary>
     /// Salvage, reroll e craft direcionado.
     ///
@@ -104,18 +111,126 @@ namespace FramedDrift.Garage
             return _save.Progress.Blueprints.Contains(partId);
         }
 
+        // --- pedacos de planta (10.6) --------------------------------------------------
+
+        /// <summary>Quantos pedacos faltam para fechar uma planta.</summary>
+        public int FragmentsPerBlueprint
+        {
+            get
+            {
+                int n = _content.Balance.BlueprintFragmentsPerBlueprint;
+                return n < 1 ? 1 : n;
+            }
+        }
+
+        /// <summary>Pedacos ja juntos desta planta. Zero quando ela ja esta completa.</summary>
+        public int FragmentsOf(string partId)
+        {
+            SavedBlueprint entry = FindFragment(partId);
+            return entry == null ? 0 : entry.Fragments;
+        }
+
+        /// <summary>
+        /// Credita um pedaco. Devolve true no pedaco que COMPLETA a planta.
+        ///
+        /// Uma planta ja completa e ainda nao usada nao acumula um segundo lote: o pedaco
+        /// e descartado. Deixar empilhar transformaria a planta - que e um objetivo de
+        /// longo prazo (10.6) - numa moeda, e o jogador que ignorasse a bancada juntaria
+        /// craft infinito sem decidir nada.
+        /// </summary>
+        public bool AddBlueprintFragment(string partId)
+        {
+            if (string.IsNullOrEmpty(partId)) return false;
+            if (!_content.Parts.ContainsKey(partId)) return false;
+            if (HasBlueprint(partId)) return false;
+
+            SavedBlueprint entry = FindFragment(partId);
+            if (entry == null)
+            {
+                entry = new SavedBlueprint { PartId = partId, Fragments = 0 };
+                _save.Progress.BlueprintFragments.Add(entry);
+            }
+
+            entry.Fragments++;
+            if (entry.Fragments < FragmentsPerBlueprint) return false;
+
+            _save.Progress.BlueprintFragments.Remove(entry);
+            _save.Progress.Blueprints.Add(partId);
+
+            EventBus.Publish(new BlueprintCompleted
+            {
+                PartId = partId,
+                DisplayName = _content.Part(partId).DisplayName,
+            });
+            return true;
+        }
+
+        private SavedBlueprint FindFragment(string partId)
+        {
+            List<SavedBlueprint> list = _save.Progress.BlueprintFragments;
+            for (int i = 0; i < list.Count; i++)
+                if (list[i].PartId == partId) return list[i];
+            return null;
+        }
+
         /// <summary>
         /// Craft com blueprint: gasta scrap, consome o blueprint e entrega a peca na
         /// raridade pedida. E o caminho deterministico - a peca sai garantida.
+        /// </summary>
+        /// <summary>
+        /// A maior raridade que o tier atual permite (GDD 10.2).
+        ///
+        /// Sai do MESMO `rarityWeights` que o drop usa: peso zero significa "esta
+        /// raridade nao existe neste tier", e no tier D isso exclui Epic e Legendary.
+        /// </summary>
+        public Rarity MaxCraftableRarity()
+        {
+            TierDef tier = _content.Tier(CurrentTier);
+            var best = Rarity.Common;
+
+            for (int i = 0; i < tier.RarityWeights.Length; i++)
+                if (tier.RarityWeights[i] > 0f) best = (Rarity)i;
+
+            return best;
+        }
+
+        public int MaxCraftableItemLevel()
+        {
+            return _content.Tier(CurrentTier).ItemLevelCap;
+        }
+
+        private TierRank CurrentTier
+        {
+            get
+            {
+                int i = _save.Progress.TierIndex;
+                if (i < 0) i = 0;
+                if (i > (int)TierRank.S) i = (int)TierRank.S;
+                return (TierRank)i;
+            }
+        }
+
+        /// <summary>
+        /// Craft direcionado. A raridade e o iLvl sao GRAMPEADOS ao teto do tier.
+        ///
+        /// Sem o grampo, quem chamasse `Craft(id, Legendary, 999)` receberia a peca: a
+        /// bancada era o unico caminho do jogo capaz de produzir raridade que o tier nao
+        /// oferece, e isso vazaria por cima de toda a escada da 10.2. O grampo silencioso
+        /// e proposital - a UI so oferece o que cabe, entao chegar aqui acima do teto e
+        /// bug de chamador, e recusar deixaria o jogador sem a peca e sem a planta.
         /// </summary>
         public PartInstance Craft(string partId, Rarity rarity, int itemLevel)
         {
             if (!HasBlueprint(partId)) return null;
             if (_inventory.IsFull) return null;
 
+            Rarity capped = rarity > MaxCraftableRarity() ? MaxCraftableRarity() : rarity;
+            int level = itemLevel < 1 ? 1 : itemLevel;
+            if (level > MaxCraftableItemLevel()) level = MaxCraftableItemLevel();
+
             // Cobrar depois de checar o inventario: debitar e so entao descobrir que a
             // peca nao cabe cobraria o jogador por nada.
-            if (!_economy.SpendScrap(CraftCost(partId, rarity))) return null;
+            if (!_economy.SpendScrap(CraftCost(partId, capped))) return null;
 
             _save.Progress.Blueprints.Remove(partId);
 
@@ -123,8 +238,8 @@ namespace FramedDrift.Garage
             return _inventory.Add(new Simulation.Outcomes.PartDrop
             {
                 BaseId = partId,
-                Rarity = rarity,
-                ItemLevel = itemLevel,
+                Rarity = capped,
+                ItemLevel = level,
                 Seed = rng.NextULong() | 1UL,
             });
         }

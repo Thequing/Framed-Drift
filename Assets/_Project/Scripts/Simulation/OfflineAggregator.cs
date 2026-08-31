@@ -50,6 +50,9 @@ namespace FramedDrift.Simulation
         public int[] DropsByRarity = new int[5];
 
         public List<PartDrop> KeptDrops = new List<PartDrop>();
+
+        /// <summary>Um partId por pedaco de planta juntado na ausencia. GDD 10.6.</summary>
+        public List<string> BlueprintFragments = new List<string>();
         public List<OfflineLogEntry> Highlights = new List<OfflineLogEntry>();
 
         public int TotalDrops
@@ -177,6 +180,7 @@ namespace FramedDrift.Simulation
             report.DamageTaken = damage;
 
             RollDrops(report, rng, n, sample, prototype);
+            RollBlueprintFragments(report, rng, n, prototype);
 
             // Passo 5: aplica as regras de automacao sequencialmente sobre o resultado.
             ApplyRules(report, rules, currentDamage, perRace, sample);
@@ -314,6 +318,46 @@ namespace FramedDrift.Simulation
             }
         }
 
+        /// <summary>
+        /// Pedacos de planta na ausencia (GDD 10.6).
+        ///
+        /// A ausencia NAO pode render menos que o mesmo tempo jogado - e a promessa D-02.
+        /// Como a chance e por corrida e independente, o total de n corridas e binomial;
+        /// o alvo usa o MESMO peso inverso do caminho online, senao a planta que a
+        /// ausencia junta seria de outra peca que a que o jogo acordado daria.
+        /// </summary>
+        private void RollBlueprintFragments(OfflineReport report, DeterministicRng rng,
+                                            int races, RaceInstance prototype)
+        {
+            var b = _balance;
+            if (b.BlueprintFragmentChance <= 0f || races <= 0) return;
+
+            string[] pool = prototype.PartPool;
+            if (pool == null || pool.Length == 0) return;
+
+            int maxTier = MathUtil.Clamp(prototype.TierIndex, 0, (int)TierRank.S);
+
+            var weights = new float[pool.Length];
+            bool any = false;
+            for (int i = 0; i < pool.Length; i++)
+            {
+                PartDef def = _content.Part(pool[i]);
+                if ((int)def.Tier > maxTier || def.DropWeight <= 0f) continue;
+                if (def.BuyCost <= 0L) continue;   // peca de serie: planta dela nao vale nada
+
+                weights[i] = 1f / def.DropWeight;
+                any = true;
+            }
+            if (!any) return;
+
+            int fragments = rng.Binomial(races, b.BlueprintFragmentChance);
+            for (int i = 0; i < fragments; i++)
+            {
+                int index = rng.WeightedIndex(weights);
+                if (index >= 0) report.BlueprintFragments.Add(pool[index]);
+            }
+        }
+
         // --- passo 5: regras de automacao --------------------------------------------------
 
         private void ApplyRules(OfflineReport report, OfflineRules rules, float startingDamage,
@@ -409,6 +453,11 @@ namespace FramedDrift.Simulation
             int keep = (int)(report.KeptDrops.Count * fraction);
             if (keep < report.KeptDrops.Count)
                 report.KeptDrops.RemoveRange(keep, report.KeptDrops.Count - keep);
+
+            int keepFragments = (int)(report.BlueprintFragments.Count * fraction);
+            if (keepFragments < report.BlueprintFragments.Count)
+                report.BlueprintFragments.RemoveRange(
+                    keepFragments, report.BlueprintFragments.Count - keepFragments);
 
             report.Highlights.RemoveAll(h => h.AtSeconds > report.StoppedAtSeconds);
         }

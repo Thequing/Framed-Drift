@@ -209,6 +209,13 @@
   "salvageScrapBase": 4,
   "salvageRarityGrowth": 2.2,
   "salvageItemLevelFactor": 0.35,
+
+  // Plantas (GDD 10.6): caem em PEDACOS, e completar uma e objetivo de longo prazo.
+  // A chance e por corrida; o alvo sai do pool do tier da corrida, com peso INVERSO ao
+  // dropWeight - a planta serve para cortar a cauda do RNG, entao ela aponta justamente
+  // para a peca que raramente cai. blueprintFragmentsPerBlueprint e o "/5" da secao 10.6.
+  "blueprintFragmentChance": 0.30,
+  "blueprintFragmentsPerBlueprint": 5,
   "reputationPerWin": 3,
   "reputationPerPodium": 1,
 

@@ -27,10 +27,14 @@ namespace FramedDrift.UI
     /// </summary>
     public sealed class GarageUI : MonoBehaviour
     {
+        /// <summary>Qual das tres listas ocupa a coluna da direita.</summary>
+        private enum PartsView { Inventario, Loja, Plantas }
+
         private Vector2 _partScroll;
         private Vector2 _shopScroll;
+        private Vector2 _blueprintScroll;
         private PartSlot _selectedSlot = PartSlot.Engine;
-        private bool _showShop;
+        private PartsView _view = PartsView.Inventario;
         private string _hoverTooltip;
 
         public void Draw(Rect area)
@@ -236,13 +240,15 @@ namespace FramedDrift.UI
             GUILayout.BeginVertical();
 
             GUILayout.BeginHorizontal();
-            GUILayout.Label((_showShop ? "LOJA - " : "PECAS - ") + SlotName(_selectedSlot).ToUpperInvariant(),
+            GUILayout.Label(ViewTitle(_view) + " - " + SlotName(_selectedSlot).ToUpperInvariant(),
                             UiSkin.Title, GUILayout.Width(210f));
-            if (GUILayout.Button(_showShop ? "VER INVENTARIO" : "VER LOJA", GUILayout.Width(150f)))
-                _showShop = !_showShop;
+            Tab(PartsView.Inventario, "PECAS", 78f);
+            Tab(PartsView.Loja, "LOJA", 62f);
+            Tab(PartsView.Plantas, "PLANTAS", 86f);
             GUILayout.EndHorizontal();
 
-            if (_showShop) DrawShopList(game, car);
+            if (_view == PartsView.Loja) DrawShopList(game, car);
+            else if (_view == PartsView.Plantas) DrawBlueprintList(game, car);
             else DrawInventoryList(game, car);
 
             GUILayout.EndVertical();
@@ -295,6 +301,84 @@ namespace FramedDrift.UI
 
             if (catalogue.Count == 0)
                 GUILayout.Label("Nada a venda neste slot no seu tier.", UiSkin.Mono);
+
+            GUILayout.EndScrollView();
+        }
+
+        private void Tab(PartsView view, string label, float width)
+        {
+            GUI.color = _view == view ? UiSkin.Accent : Color.white;
+            if (GUILayout.Button(label, GUILayout.Width(width))) _view = view;
+            GUI.color = Color.white;
+        }
+
+        private static string ViewTitle(PartsView view)
+        {
+            if (view == PartsView.Loja) return "LOJA";
+            if (view == PartsView.Plantas) return "PLANTAS";
+            return "PECAS";
+        }
+
+        /// <summary>
+        /// A bancada (GDD 10.6): pedacos juntos, plantas completas e o craft.
+        ///
+        /// Mostra "3/5" mesmo sem nenhum pedaco, porque o valor da planta esta em ser um
+        /// objetivo VISIVEL de longo prazo. Uma lista que so aparece quando ja esta
+        /// completa nao e um objetivo, e uma surpresa.
+        /// </summary>
+        private void DrawBlueprintList(GameManager game, CarInstance car)
+        {
+            Crafting crafting = game.Crafting;
+            int need = crafting.FragmentsPerBlueprint;
+
+            GUILayout.Label("Scrap " + UiSkin.Number(game.Economy.Scrap)
+                            + "   -   craft ate " + crafting.MaxCraftableRarity()
+                            + " no tier " + game.Shop.PlayerTier, UiSkin.Mono);
+
+            _blueprintScroll = GUILayout.BeginScrollView(_blueprintScroll);
+
+            List<PartDef> known = game.Shop.Catalogue(_selectedSlot);
+            int shown = 0;
+
+            for (int i = 0; i < known.Count; i++)
+            {
+                PartDef def = known[i];
+                bool complete = crafting.HasBlueprint(def.Id);
+                int fragments = crafting.FragmentsOf(def.Id);
+                if (!complete && fragments == 0) continue;   // nada juntado ainda
+
+                shown++;
+                GUILayout.BeginHorizontal();
+
+                GUILayout.Label(def.DisplayName, UiSkin.Label, GUILayout.Width(176f));
+
+                Rect row = GUILayoutUtility.GetLastRect();
+                if (row.Contains(Event.current.mousePosition))
+                    _hoverTooltip = BuildComparison(game, car, game.Shop.Preview(def));
+
+                GUILayout.Label(complete ? "COMPLETA" : fragments + "/" + need,
+                                UiSkin.Mono, GUILayout.Width(72f));
+
+                Rarity rarity = crafting.MaxCraftableRarity();
+                long cost = crafting.CraftCost(def.Id, rarity);
+
+                GUI.enabled = complete && game.Economy.Scrap >= cost && !game.Inventory.IsFull;
+                if (GUILayout.Button("CRAFT (" + UiSkin.Number(cost) + ")", GUILayout.Width(150f)))
+                {
+                    PartInstance made = crafting.Craft(def.Id, rarity, crafting.MaxCraftableItemLevel());
+                    game.SaveNow();
+                    if (made != null) _hoverTooltip = made.Describe();
+                }
+                GUI.enabled = true;
+
+                GUILayout.EndHorizontal();
+            }
+
+            if (shown == 0)
+            {
+                GUILayout.Label("Nenhuma planta deste slot ainda.", UiSkin.Mono);
+                GUILayout.Label("Pedacos caem correndo - " + need + " fecham uma.", UiSkin.Mono);
+            }
 
             GUILayout.EndScrollView();
         }
