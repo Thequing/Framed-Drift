@@ -58,6 +58,7 @@ namespace FramedDrift.App
         public InventoryManager Inventory { get; private set; }
         public BuildManager Builds { get; private set; }
         public Crafting Crafting { get; private set; }
+        public Shop Shop { get; private set; }
 
         public EconomyLedger Economy { get; private set; }
         public ReputationSystem Reputation { get; private set; }
@@ -129,6 +130,7 @@ namespace FramedDrift.App
             Inventory = new InventoryManager(Save, Resolver.Loot, Economy);
             Builds = new BuildManager(Content, Resolver, Factory);
             Crafting = new Crafting(Save, Content, Inventory, Resolver.Loot, Economy);
+            Shop = new Shop(Save, Content, Inventory, Economy, Resolver.Loot);
             Reputation = new ReputationSystem(Save, Content);
             Missions = new MissionSystem();
             Prestige = new PrestigeSystem(Save);

@@ -156,7 +156,8 @@ Unity.exe -batchmode -runTests -projectPath . -testPlatform EditMode
 Unity.exe -batchmode -runTests -projectPath . -testPlatform PlayMode
 ```
 
-**41 EditMode + 5 PlayMode, todos passando.** Eles nao sao testes de fumaca: sao os
+**53 EditMode + 5 PlayMode passando** (mais 1 ignorado: o teste de tier
+bloqueado da loja se auto-ignora enquanto todo o conteudo for tier D). Eles nao sao testes de fumaca: sao os
 criterios de saida da GDD 21.2 escritos como asserts.
 
 ### Harness offline
@@ -199,7 +200,7 @@ recuperacao de backup.
 | 4.5 | Entrada Perfeita + coletaveis | **feito** - uplift medido em 24,5% |
 | 5 | Auto-race em loop | **feito**; falta a prova de 2 h sem vazamento |
 | 6 | Save + progresso offline | **feito** - paridade em 0,06% |
-| 7-9 | Garagem, tuning, loot | **feito** |
+| 7-9 | Garagem, tuning, loot, loja | **feito** - vitrine de catalogo fixo por tier |
 | 10 | Progressao, reputacao, tiers, unlocks | **feito** |
 | 11 | Conteudo: regioes, horarios, clima | **parcial** - 1 regiao, 2 periodos, 3 climas |
 | 12 | Gerador procedural | **feito** - 200/200 validas |
@@ -217,3 +218,7 @@ recuperacao de backup.
 3. **Modelos e prefabs de modulo** - trocar as primitivas.
 4. **Execucao paralela da frota** - hoje uma vaga corre por vez.
 5. **Endless** (14.6) e o resto do conteudo da Fase 11.
+6. **Pecas acima do tier D.** As 20 bases sao TODAS tier D, entao a escada da loja tem
+   um degrau so: o portao por tier existe e e testado, mas nao tem o que liberar ainda.
+   Enquanto isso durar, o cash volta a acumular assim que o jogador comprar as 13 pecas
+   a venda.

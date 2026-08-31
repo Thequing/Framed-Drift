@@ -28,7 +28,9 @@ namespace FramedDrift.UI
     public sealed class GarageUI : MonoBehaviour
     {
         private Vector2 _partScroll;
+        private Vector2 _shopScroll;
         private PartSlot _selectedSlot = PartSlot.Engine;
+        private bool _showShop;
         private string _hoverTooltip;
 
         public void Draw(Rect area)
@@ -220,12 +222,97 @@ namespace FramedDrift.UI
             return next;
         }
 
-        // --- inventario do slot selecionado (18.5) -------------------------------------------
+        // --- inventario e vitrine do slot selecionado (18.4, 18.5) ---------------------------
 
+        /// <summary>
+        /// As duas listas dividem a MESMA coluna e o MESMO slot selecionado.
+        ///
+        /// "O que eu tenho para este slot?" e "o que eu posso comprar para este slot?" sao
+        /// a mesma pergunta em dois tempos - separa-las em telas faria o jogador decorar
+        /// numeros para atravessar a navegacao, que e exatamente o que a GDD 18.4 proibe.
+        /// </summary>
         private void DrawPartsColumn(GameManager game, CarInstance car)
         {
             GUILayout.BeginVertical();
-            GUILayout.Label("PECAS - " + SlotName(_selectedSlot).ToUpperInvariant(), UiSkin.Title);
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label((_showShop ? "LOJA - " : "PECAS - ") + SlotName(_selectedSlot).ToUpperInvariant(),
+                            UiSkin.Title, GUILayout.Width(210f));
+            if (GUILayout.Button(_showShop ? "VER INVENTARIO" : "VER LOJA", GUILayout.Width(150f)))
+                _showShop = !_showShop;
+            GUILayout.EndHorizontal();
+
+            if (_showShop) DrawShopList(game, car);
+            else DrawInventoryList(game, car);
+
+            GUILayout.EndVertical();
+        }
+
+        /// <summary>
+        /// A vitrine (GDD 15.5): catalogo fixo do tier, do mais barato ao mais caro.
+        ///
+        /// Cada linha carrega o MESMO delta do inventario - o jogador ve o que o dinheiro
+        /// compra em Drift Score antes de gastar, nao depois (GDD 18.5).
+        /// </summary>
+        private void DrawShopList(GameManager game, CarInstance car)
+        {
+            GUILayout.Label("Tier " + game.Shop.PlayerTier + " - pecas de fabrica, sem afixos", UiSkin.Mono);
+
+            _shopScroll = GUILayout.BeginScrollView(_shopScroll);
+
+            List<PartDef> catalogue = game.Shop.Catalogue(_selectedSlot);
+            for (int i = 0; i < catalogue.Count; i++)
+            {
+                PartDef def = catalogue[i];
+                PurchaseBlock block = game.Shop.Evaluate(def);
+
+                GUILayout.BeginHorizontal();
+
+                GUILayout.Label(def.DisplayName, UiSkin.Label, GUILayout.Width(176f));
+
+                Rect row = GUILayoutUtility.GetLastRect();
+                if (row.Contains(Event.current.mousePosition))
+                    _hoverTooltip = BuildComparison(game, car, game.Shop.Preview(def));
+
+                GUILayout.Label(UiSkin.Number(def.BuyCost), UiSkin.Mono, GUILayout.Width(72f));
+
+                GUI.enabled = block == PurchaseBlock.None;
+                if (GUILayout.Button("COMPRAR", GUILayout.Width(90f)))
+                {
+                    PartInstance bought = game.Shop.Buy(def.Id);
+                    game.SaveNow();
+                    if (bought != null) _hoverTooltip = "Comprado: " + bought.DisplayName;
+                }
+                GUI.enabled = true;
+
+                // O MOTIVO, nunca so o botao cinza: um botao desabilitado sem explicacao
+                // le como bug do jogo, nao como decisao do jogador.
+                if (block != PurchaseBlock.None)
+                    GUILayout.Label(BlockReason(block), UiSkin.Mono, GUILayout.Width(112f));
+
+                GUILayout.EndHorizontal();
+            }
+
+            if (catalogue.Count == 0)
+                GUILayout.Label("Nada a venda neste slot no seu tier.", UiSkin.Mono);
+
+            GUILayout.EndScrollView();
+        }
+
+        private static string BlockReason(PurchaseBlock block)
+        {
+            switch (block)
+            {
+                case PurchaseBlock.CantAfford: return "sem cash";
+                case PurchaseBlock.InventoryFull: return "inventario cheio";
+                case PurchaseBlock.TierLocked: return "tier bloqueado";
+                case PurchaseBlock.NotForSale: return "fora de linha";
+                default: return "";
+            }
+        }
+
+        private void DrawInventoryList(GameManager game, CarInstance car)
+        {
             GUILayout.Label(game.Inventory.Count + "/" + game.Inventory.Capacity + " slots", UiSkin.Mono);
 
             _partScroll = GUILayout.BeginScrollView(_partScroll);
@@ -274,7 +361,6 @@ namespace FramedDrift.UI
             if (parts.Count == 0) GUILayout.Label("Nenhuma peca deste tipo.", UiSkin.Mono);
 
             GUILayout.EndScrollView();
-            GUILayout.EndVertical();
         }
 
         /// <summary>
@@ -286,6 +372,13 @@ namespace FramedDrift.UI
         /// </summary>
         private string BuildComparison(GameManager game, CarInstance car, PartInstance candidate)
         {
+            return candidate == null ? null : BuildComparison(game, car, candidate.Rolled);
+        }
+
+        private string BuildComparison(GameManager game, CarInstance car, RolledPart candidate)
+        {
+            if (candidate == null) return null;
+
             var conditions = new RaceConditions
             {
                 Weather = game.Forecast,

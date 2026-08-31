@@ -133,6 +133,17 @@ namespace FramedDrift.Garage
         public BuildDelta Compare(CarInstance car, PartInstance candidate, TrackDef track,
                                   RaceConditions conditions, int stage)
         {
+            return Compare(car, candidate == null ? null : candidate.Rolled, track, conditions, stage);
+        }
+
+        /// <summary>
+        /// A mesma comparacao para uma peca ainda nao comprada. A vitrine da loja usa
+        /// esta - e o MESMO simulador da corrida, entao o preco nunca compra uma promessa
+        /// que a pista nao cumpre.
+        /// </summary>
+        public BuildDelta Compare(CarInstance car, RolledPart candidate, TrackDef track,
+                                  RaceConditions conditions, int stage)
+        {
             CarLoadout before = car.Loadout;
             CarLoadout after = car.ResolveWith(candidate);
 

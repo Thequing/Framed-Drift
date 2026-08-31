@@ -56,17 +56,7 @@ namespace FramedDrift.Garage
         /// <summary>Texto de tooltip completo. A cor codifica raridade e nada mais (GDD 18.5).</summary>
         public string Describe()
         {
-            var sb = new System.Text.StringBuilder();
-            sb.Append(Rolled.DisplayName).Append("  ").Append(Rarity);
-            if (Rolled.ItemLevel > 0) sb.Append("  iLvl ").Append(Rolled.ItemLevel);
-
-            for (int i = 0; i < Rolled.Affixes.Length; i++)
-                sb.Append('\n').Append("  ").Append(Rolled.Affixes[i].Describe());
-
-            if (Rolled.HasPassive)
-                sb.Append("\n  ").Append(Rolled.PassiveText);
-
-            return sb.ToString();
+            return Rolled.Describe();
         }
     }
 }

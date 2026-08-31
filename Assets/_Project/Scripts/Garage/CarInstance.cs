@@ -97,18 +97,32 @@ namespace FramedDrift.Garage
         /// <summary>A build ativa com UMA peca trocada. Base do delta de tooltip.</summary>
         public CarLoadout ResolveWith(PartInstance candidate)
         {
-            SavedBuild current = ActiveBuild;
-            var hypothetical = new SavedBuild
+            return candidate == null ? Loadout : ResolveWith(candidate.Rolled);
+        }
+
+        /// <summary>
+        /// O mesmo delta para uma peca que o jogador AINDA NAO TEM - a vitrine da loja.
+        ///
+        /// Trocar por uid nao serve aqui: uma peca a venda nao tem entrada no inventario,
+        /// e o uid 0 significa SLOT VAZIO. O delta sairia contra um slot vazio e mentiria
+        /// a favor da compra, exatamente na tela onde o jogador gasta. Por isso a troca e
+        /// feita no array ja resolvido, por slot.
+        /// </summary>
+        public CarLoadout ResolveWith(RolledPart candidate)
+        {
+            if (candidate == null) return Loadout;
+
+            SavedBuild build = ActiveBuild;
+            RolledPart[] equipped = EquippedParts(build);
+            equipped[(int)candidate.Slot] = candidate;
+
+            var tuning = new TuningSetup
             {
-                Name = current.Name,
-                SlotUids = (int[])current.SlotUids.Clone(),
-                TuneLock = current.TuneLock,
-                TuneAccel = current.TuneAccel,
-                TuneDecel = current.TuneDecel,
-                Style = current.Style,
+                Lock = build.TuneLock,
+                Accel = build.TuneAccel,
+                Decel = build.TuneDecel,
             };
-            hypothetical.SlotUids[(int)candidate.Slot] = candidate.Uid;
-            return Resolve(hypothetical);
+            return _resolver.Resolve(Definition, equipped, tuning, Saved.Damage);
         }
 
         public RolledPart[] EquippedParts(SavedBuild build)

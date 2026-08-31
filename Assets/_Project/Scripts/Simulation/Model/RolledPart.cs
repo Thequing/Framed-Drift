@@ -62,6 +62,27 @@ namespace FramedDrift.Simulation.Model
             Affixes = NoAffixes;
         }
 
+        /// <summary>
+        /// Texto de tooltip completo. A cor codifica raridade e nada mais (GDD 18.5).
+        ///
+        /// Mora na peca ROLADA, e nao na do inventario, porque a vitrine da loja precisa
+        /// do mesmo texto para uma peca que ainda nao foi comprada.
+        /// </summary>
+        public string Describe()
+        {
+            var sb = new System.Text.StringBuilder();
+            sb.Append(DisplayName).Append("  ").Append(Rarity);
+            if (ItemLevel > 0) sb.Append("  iLvl ").Append(ItemLevel);
+
+            for (int i = 0; i < Affixes.Length; i++)
+                sb.Append('\n').Append("  ").Append(Affixes[i].Describe());
+
+            if (HasPassive)
+                sb.Append("\n  ").Append(PassiveText);
+
+            return sb.ToString();
+        }
+
         /// <summary>Stats totais desta peca: base artesanal mais afixos rolados.</summary>
         public ResolvedStats TotalStats()
         {
