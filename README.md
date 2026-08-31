@@ -100,7 +100,7 @@ editada pelo input. Chamar o mesmo scorer com a timeline intocada devolve o resu
 offline - **e a mesma funcao**. E isso, e nao um teste, que faz a promessa de D-02
 ("offline rende 100%") ser literalmente verdadeira.
 
-### Tres licencas em relacao a arvore da GDD 20.1
+### Quatro licencas em relacao a arvore da GDD 20.1
 
 1. **`DeterministicRng` mora em `Simulation/Rng/`, nao em `Core/`.** A GDD lista `Rng`
    sob `Core`, mas `Core` referencia `UnityEngine` e o simulador nao pode depender dele.
@@ -110,6 +110,11 @@ offline - **e a mesma funcao**. E isso, e nao um teste, que faz a promessa de D-
 3. **`TuningUI` e `InventoryUI` nao sao arquivos separados**: as duas telas vivem dentro
    de `GarageUI`, porque a GDD 18.4 exige que a garagem responda as tres perguntas da 3.4
    *sem navegacao extra*.
+4. **`EconomyLedger` mora em `Core/`, nao em `Progression/`.** `Garage` e `Progression`
+   sao irmaos: nenhum ve o outro. Com o ledger em `Progression`, quem mais gasta
+   (`Crafting`, `InventoryManager`) nao conseguia alcanca-lo e debitava `SaveData` direto
+   - o `CurrencyChanged` nunca saia. O ledger nao depende de nenhum dos dois, so de
+   `SaveData` + `BalanceSettings` + `EventBus`, entao `Core` e onde ele sempre coube.
 
 Cada uma esta documentada tambem no README da pasta correspondente.
 
@@ -151,7 +156,7 @@ Unity.exe -batchmode -runTests -projectPath . -testPlatform EditMode
 Unity.exe -batchmode -runTests -projectPath . -testPlatform PlayMode
 ```
 
-**32 EditMode + 5 PlayMode, todos passando.** Eles nao sao testes de fumaca: sao os
+**41 EditMode + 5 PlayMode, todos passando.** Eles nao sao testes de fumaca: sao os
 criterios de saida da GDD 21.2 escritos como asserts.
 
 ### Harness offline

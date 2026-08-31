@@ -32,12 +32,14 @@ namespace FramedDrift.Garage
     {
         private readonly SaveData _save;
         private readonly LootRoller _loot;
+        private readonly EconomyLedger _economy;
         private readonly Dictionary<int, PartInstance> _materialized = new Dictionary<int, PartInstance>();
 
-        public InventoryManager(SaveData save, LootRoller loot)
+        public InventoryManager(SaveData save, LootRoller loot, EconomyLedger economy)
         {
             _save = save;
             _loot = loot;
+            _economy = economy;
         }
 
         public int Count { get { return _save.Inventory.Count; } }
@@ -165,7 +167,7 @@ namespace FramedDrift.Garage
 
             long scrap = _loot.SalvageValue(part.Rolled);
             Remove(uid);
-            _save.Scrap += scrap;
+            _economy.AddScrap(scrap);
             return scrap;
         }
 

@@ -108,13 +108,13 @@ namespace FramedDrift.Tests.PlayMode
             var resolver = new RaceResolver(content);
 
             SaveData original = SampleSave();
-            var inventoryBefore = new InventoryManager(original, resolver.Loot);
+            var inventoryBefore = new InventoryManager(original, resolver.Loot, new EconomyLedger(original, content.Balance));
             PartInstance before = inventoryBefore.Get(1);
 
             SaveManager.Save(original);
             SaveData loaded = SaveManager.Load();
 
-            var inventoryAfter = new InventoryManager(loaded, resolver.Loot);
+            var inventoryAfter = new InventoryManager(loaded, resolver.Loot, new EconomyLedger(loaded, content.Balance));
             PartInstance after = inventoryAfter.Get(1);
 
             Assert.IsNotNull(before);

@@ -263,7 +263,6 @@ namespace FramedDrift.UI
                 if (GUILayout.Button(salvageLabel, GUILayout.Width(100f)))
                 {
                     long scrap = game.Inventory.Salvage(part.Uid);
-                    game.Economy.AddScrap(0);   // republica o extrato
                     game.SaveNow();
                     _hoverTooltip = "+" + scrap + " de scrap";
                 }

@@ -92,14 +92,18 @@ namespace FramedDrift.Automation
                 _entries.Add(new FleetEntry { Saved = _save.Fleet[_entries.Count] });
         }
 
-        /// <summary>custoSlotGaragem(n) = 5.000 * 2,4^(n-2). GDD 15.3.</summary>
+        /// <summary>
+        /// custoSlotGaragem(n) = 5.000 * 2,4^(n-2), onde n e a contagem ATUAL de vagas.
+        /// GDD 15.3: a primeira compra (saindo das 2 vagas iniciais) custa a base cheia.
+        /// </summary>
         public long NextSlotCost()
         {
+            int n = _entries.Count < StartingSlots ? StartingSlots : _entries.Count;
             return (long)(_balance.GarageSlotCostBase
-                          * Mathf.Pow(_balance.GarageSlotCostGrowth, _entries.Count - 1));
+                          * Mathf.Pow(_balance.GarageSlotCostGrowth, n - StartingSlots));
         }
 
-        public bool BuySlot(Progression.EconomyLedger economy)
+        public bool BuySlot(EconomyLedger economy)
         {
             if (_entries.Count >= MaxSlots) return false;
 

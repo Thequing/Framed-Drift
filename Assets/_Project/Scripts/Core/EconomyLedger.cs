@@ -1,13 +1,12 @@
 // -----------------------------------------------------------------------------
-//  Framed Drift  -  Progression
+//  Framed Drift  -  Core
 //  GDD 0.2  secoes 15.1, 15.3
 // -----------------------------------------------------------------------------
 
-using FramedDrift.Core;
 using FramedDrift.Simulation.Balance;
 using UnityEngine;
 
-namespace FramedDrift.Progression
+namespace FramedDrift.Core
 {
     /// <summary>Publicado quando qualquer moeda muda. A UI so redesenha nisto.</summary>
     public struct CurrencyChanged
@@ -23,6 +22,14 @@ namespace FramedDrift.Progression
     /// Um unico ponto de entrada para creditar e debitar. Nao e cerimonia: e o que
     /// permite que a tela de retorno da ausencia (GDD 17.4) mostre um extrato coerente,
     /// e que "cash negativo" seja impossivel por construcao e nao por disciplina.
+    ///
+    /// MORA EM `Core`, e nao em `Progression` como a GDD 20.1 sugere. Garage e
+    /// Progression sao assemblies IRMAOS - nenhum ve o outro - entao um ledger em
+    /// Progression seria invisivel para Crafting e InventoryManager, que sao justamente
+    /// quem gasta. Enquanto ele morou la, os dois debitavam `SaveData` direto e o
+    /// `CurrencyChanged` nunca era publicado: a regra do "unico ponto de entrada" acima
+    /// era so um comentario. O ledger nao depende de Garage nem de Progression - so de
+    /// SaveData, BalanceSettings e EventBus - entao Core e onde ele sempre coube.
     /// </summary>
     public sealed class EconomyLedger
     {

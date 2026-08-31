@@ -27,7 +27,6 @@ namespace FramedDrift.Simulation.Outcomes
     public class RaceRewards
     {
         public long Cash;
-        public long Scrap;
         public int Xp;
         public int Reputation;
 

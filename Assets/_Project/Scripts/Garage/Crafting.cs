@@ -26,13 +26,16 @@ namespace FramedDrift.Garage
         private readonly ContentDatabase _content;
         private readonly InventoryManager _inventory;
         private readonly LootRoller _loot;
+        private readonly EconomyLedger _economy;
 
-        public Crafting(SaveData save, ContentDatabase content, InventoryManager inventory, LootRoller loot)
+        public Crafting(SaveData save, ContentDatabase content, InventoryManager inventory,
+                        LootRoller loot, EconomyLedger economy)
         {
             _save = save;
             _content = content;
             _inventory = inventory;
             _loot = loot;
+            _economy = economy;
         }
 
         // --- reroll de afixo (dreno de longo prazo, GDD 15.5) ------------------------
@@ -54,7 +57,7 @@ namespace FramedDrift.Garage
 
         public bool CanReroll(PartInstance part)
         {
-            return part != null && _save.Scrap >= RerollCost(part);
+            return part != null && _economy.Scrap >= RerollCost(part);
         }
 
         /// <summary>
@@ -64,9 +67,8 @@ namespace FramedDrift.Garage
         /// </summary>
         public PartInstance Reroll(PartInstance part)
         {
-            if (!CanReroll(part)) return part;
-
-            _save.Scrap -= RerollCost(part);
+            if (part == null) return null;
+            if (!_economy.SpendScrap(RerollCost(part))) return part;
 
             var rng = new DeterministicRng(part.Saved.Seed ^ (ulong)_save.NextPartUid);
             part.Saved.Seed = rng.NextULong() | 1UL;   // 0 e reservado para peca de fabrica
@@ -109,12 +111,12 @@ namespace FramedDrift.Garage
         public PartInstance Craft(string partId, Rarity rarity, int itemLevel)
         {
             if (!HasBlueprint(partId)) return null;
-
-            long cost = CraftCost(partId, rarity);
-            if (_save.Scrap < cost) return null;
             if (_inventory.IsFull) return null;
 
-            _save.Scrap -= cost;
+            // Cobrar depois de checar o inventario: debitar e so entao descobrir que a
+            // peca nao cabe cobraria o jogador por nada.
+            if (!_economy.SpendScrap(CraftCost(partId, rarity))) return null;
+
             _save.Progress.Blueprints.Remove(partId);
 
             var rng = new DeterministicRng((ulong)(_save.NextPartUid * 2654435761L));
@@ -145,21 +147,11 @@ namespace FramedDrift.Garage
 
         public bool Repair(CarInstance car, int tierIndex)
         {
-            long cost = RepairCost(car, tierIndex);
-            if (_save.Cash < cost) return false;
+            if (car == null) return false;
+            if (!_economy.SpendCash(RepairCost(car, tierIndex))) return false;
 
-            _save.Cash -= cost;
             car.Repair(100f);
             return true;
-        }
-
-        // --- slots de garagem (15.3 / 15.5) -----------------------------------------------
-
-        public long GarageSlotCost(int currentSlots)
-        {
-            var b = _content.Balance;
-            int n = currentSlots < 2 ? 2 : currentSlots;
-            return (long)(b.GarageSlotCostBase * Mathf.Pow(b.GarageSlotCostGrowth, n - 2));
         }
     }
 }

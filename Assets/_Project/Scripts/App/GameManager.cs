@@ -126,9 +126,9 @@ namespace FramedDrift.App
             Clock.SetClock(Save.GameClockHours);
 
             Economy = new EconomyLedger(Save, Content.Balance);
-            Inventory = new InventoryManager(Save, Resolver.Loot);
+            Inventory = new InventoryManager(Save, Resolver.Loot, Economy);
             Builds = new BuildManager(Content, Resolver, Factory);
-            Crafting = new Crafting(Save, Content, Inventory, Resolver.Loot);
+            Crafting = new Crafting(Save, Content, Inventory, Resolver.Loot, Economy);
             Reputation = new ReputationSystem(Save, Content);
             Missions = new MissionSystem();
             Prestige = new PrestigeSystem(Save);
