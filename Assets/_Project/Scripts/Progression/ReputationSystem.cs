@@ -6,6 +6,7 @@
 using System.Collections.Generic;
 using FramedDrift.Core;
 using FramedDrift.Simulation.Content;
+using FramedDrift.Simulation.Model;
 
 namespace FramedDrift.Progression
 {
@@ -63,6 +64,8 @@ namespace FramedDrift.Progression
         {
             var granted = new List<UnlockGranted>();
 
+            PromoteTier(granted);
+
             for (int i = 0; i < _content.TrackList.Count; i++)
             {
                 TrackDef track = _content.TrackList[i];
@@ -93,6 +96,36 @@ namespace FramedDrift.Progression
             }
 
             return granted;
+        }
+
+        /// <summary>
+        /// Promove o jogador ao maior tier cuja reputacao ele ja alcancou (GDD 14.2).
+        ///
+        /// `tiers.json` sempre trouxe `reputationRequired` (C 20, B 45, A 70, S 90) e
+        /// NADA lia esse campo: `Progress.TierIndex` nascia 0 e so era escrito de volta a
+        /// 0 pelo prestigio. Na pratica o jogador ficava preso no tier D para sempre - o
+        /// que nao aparecia porque todo o conteudo tambem era tier D.
+        ///
+        /// So SOBE. Cair de tier por perder reputacao tiraria pecas ja compradas da
+        /// vitrine e do inventario util; a unica descida e o prestigio, que reinicia a
+        /// temporada inteira de proposito (GDD 14.5).
+        /// </summary>
+        private void PromoteTier(List<UnlockGranted> granted)
+        {
+            int current = _save.Progress.TierIndex;
+            int target = current;
+
+            for (int i = current + 1; i < _content.Tiers.Length; i++)
+            {
+                TierDef tier = _content.Tiers[i];
+                if (tier == null || _save.Reputation < tier.ReputationRequired) break;
+                target = i;
+            }
+
+            for (int i = current + 1; i <= target; i++)
+                granted.Add(Publish("tier", ((TierRank)i).ToString(), "Tier " + (TierRank)i));
+
+            _save.Progress.TierIndex = target;
         }
 
         /// <summary>
@@ -138,6 +171,12 @@ namespace FramedDrift.Progression
             for (int i = 0; i < AutomationThresholds.Length; i++)
             {
                 int required = AutomationThresholds[i];
+                if (required > _save.Reputation && required < best) best = required;
+            }
+            for (int i = 0; i < _content.Tiers.Length; i++)
+            {
+                if (_content.Tiers[i] == null) continue;
+                int required = _content.Tiers[i].ReputationRequired;
                 if (required > _save.Reputation && required < best) best = required;
             }
             for (int i = 0; i < _content.CarList.Count; i++)

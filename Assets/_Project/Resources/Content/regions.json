@@ -27,15 +27,18 @@
         { "type": "Rain",   "weight": 18 }
       ],
 
+      // O pool lista TUDO que existe na regiao, de D a S. Quem corta por tier e o
+      // LootRoller, contra o tier da CORRIDA - por isso uma peca tier B pode morar
+      // aqui sem vazar para a corrida tier D de quem acabou de comecar.
       "partPool": [
-        "eng_stock", "eng_street", "eng_sport",
-        "tur_stock", "tur_sport",
-        "trn_stock", "trn_short",
-        "dif_open", "dif_street", "dif_lsd15", "dif_lsd2way",
-        "sus_stock", "sus_coilover",
-        "tir_street", "tir_drift", "tir_wet",
-        "brk_stock", "brk_sport",
-        "aer_stock", "aer_fiber"
+        "eng_stock", "eng_street", "eng_sport", "eng_forged", "eng_stroker",
+        "tur_stock", "tur_sport", "tur_twin", "tur_bigframe",
+        "trn_stock", "trn_short", "trn_dogbox", "trn_sequential",
+        "dif_open", "dif_street", "dif_lsd15", "dif_lsd2way", "dif_clutch", "dif_comp",
+        "sus_stock", "sus_coilover", "sus_adjustable", "sus_pillowball",
+        "tir_street", "tir_drift", "tir_wet", "tir_semislick", "tir_racing",
+        "brk_stock", "brk_sport", "brk_slotted", "brk_bigbrake",
+        "aer_stock", "aer_fiber", "aer_widebody", "aer_carbon"
       ]
     }
   ]

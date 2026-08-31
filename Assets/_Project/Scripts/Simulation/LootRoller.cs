@@ -77,18 +77,44 @@ namespace FramedDrift.Simulation
             };
         }
 
+        /// <summary>
+        /// Sorteia a base, do pool da regiao, LIMITADO AO TIER DA CORRIDA.
+        ///
+        /// O pool da regiao lista todas as pecas que existem ali, de D a S. Sem o corte
+        /// por tier, uma corrida tier D dropava peca tier B no minuto zero: a escada de
+        /// progressao inteira (GDD 10.2, 14.2) desabaria no primeiro drop de sorte, e a
+        /// loja - cujo catalogo E o tier - perderia a razao de existir.
+        ///
+        /// O peso de quem passa no corte nao muda: cortar nao redistribui, so remove.
+        /// </summary>
         private string PickBase(RaceInstance race, DeterministicRng rng)
         {
             string[] pool = race.PartPool;
             if (pool == null || pool.Length == 0)
                 throw new ContentException("A corrida em " + race.TrackId + " nao tem pool de pecas.");
 
-            var weights = new float[pool.Length];
-            for (int i = 0; i < pool.Length; i++)
-                weights[i] = _content.Part(pool[i]).DropWeight;
+            int maxTier = MathUtil.Clamp(race.TierIndex, 0, (int)TierRank.S);
 
+            var weights = new float[pool.Length];
+            int firstEligible = -1;
+            for (int i = 0; i < pool.Length; i++)
+            {
+                PartDef def = _content.Part(pool[i]);
+                if ((int)def.Tier > maxTier) continue;    // ainda nao e para este jogador
+
+                weights[i] = def.DropWeight;
+                if (firstEligible < 0) firstEligible = i;
+            }
+
+            // Um pool sem NENHUMA peca do tier da corrida e erro de conteudo, nao azar:
+            // silenciar com a primeira peca do pool entregaria uma peca acima do tier.
+            if (firstEligible < 0)
+                throw new ContentException("O pool de " + race.TrackId + " nao tem peca de tier "
+                                           + (TierRank)maxTier + " ou abaixo.");
+
+            // O fallback tambem precisa respeitar o corte: pool[0] pode ser tier S.
             int index = rng.WeightedIndex(weights);
-            return pool[index < 0 ? 0 : index];
+            return pool[index < 0 ? firstEligible : index];
         }
 
         /// <summary>

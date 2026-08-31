@@ -34,7 +34,15 @@ namespace FramedDrift.Tests.EditMode
             ContentDatabase db = TestWorld.Shared.Content;
 
             Assert.AreEqual(3, db.CarList.Count, "GDD 22.1: o MVP tem 3 carros.");
-            Assert.AreEqual(20, db.PartList.Count, "GDD 22.1: o MVP tem 20 pecas base.");
+
+            // A GDD 22.1 fecha o MVP em 20 bases, e essas 20 continuam sendo o tier D
+            // inteiro - o contrato original esta preservado na primeira linha. As 16
+            // seguintes sao a escada de tier (C e B), que o MVP nao previa porque nao
+            // previa que `Progress.TierIndex` fosse subir. A 22.1 precisa ser atualizada.
+            Assert.AreEqual(20, CountAtTier(db, TierRank.D), "GDD 22.1: 20 bases no tier D.");
+            Assert.AreEqual(8, CountAtTier(db, TierRank.C), "Uma base tier C por slot.");
+            Assert.AreEqual(8, CountAtTier(db, TierRank.B), "Uma base tier B por slot.");
+            Assert.AreEqual(36, db.PartList.Count, "20 (D) + 8 (C) + 8 (B).");
             Assert.AreEqual(12, db.AffixList.Count, "GDD 22.1: o MVP tem 12 afixos.");
             Assert.AreEqual(6, db.Modules.Count, "GDD 22.1: o MVP tem 6 modulos.");
             Assert.AreEqual(3, db.TrackList.Count, "GDD 22.1: o MVP tem 3 pistas.");
@@ -43,6 +51,14 @@ namespace FramedDrift.Tests.EditMode
             Assert.AreEqual(8, System.Enum.GetValues(typeof(PartSlot)).Length, "GDD 9.1: oito slots.");
             Assert.AreEqual(5, System.Enum.GetValues(typeof(Rarity)).Length,
                 "GDD 10.2: cinco raridades no lancamento. Prototype e Mythic ficam de fora.");
+        }
+
+        private static int CountAtTier(ContentDatabase db, TierRank tier)
+        {
+            int n = 0;
+            for (int i = 0; i < db.PartList.Count; i++)
+                if (db.PartList[i].Tier == tier) n++;
+            return n;
         }
 
         [Test]

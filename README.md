@@ -134,7 +134,7 @@ para o porque de JSON em vez de ScriptableObject.
 | `tracks.json` | 3 pistas fixas |
 | `regions.json` | Cidade: pool de modulos, clima, pool de pecas |
 | `cars.json` | Kite 130, Kanto AE, Brute V8 |
-| `parts.json` | 20 bases nos 8 slots |
+| `parts.json` | 36 bases nos 8 slots, em 3 tiers (20 D + 8 C + 8 B) |
 | `affixes.json` | 12 afixos (9 beneficios + 3 trade-offs) |
 | `passives.json` | 8 passivas condicionais (Rare+) |
 | `sets.json` | Street King e Drift Demon |
@@ -156,8 +156,7 @@ Unity.exe -batchmode -runTests -projectPath . -testPlatform EditMode
 Unity.exe -batchmode -runTests -projectPath . -testPlatform PlayMode
 ```
 
-**53 EditMode + 5 PlayMode passando** (mais 1 ignorado: o teste de tier
-bloqueado da loja se auto-ignora enquanto todo o conteudo for tier D). Eles nao sao testes de fumaca: sao os
+**68 EditMode + 5 PlayMode, todos passando.** Eles nao sao testes de fumaca: sao os
 criterios de saida da GDD 21.2 escritos como asserts.
 
 ### Harness offline
@@ -202,7 +201,7 @@ recuperacao de backup.
 | 6 | Save + progresso offline | **feito** - paridade em 0,06% |
 | 7-9 | Garagem, tuning, loot, loja | **feito** - vitrine de catalogo fixo por tier |
 | 10 | Progressao, reputacao, tiers, unlocks | **feito** |
-| 11 | Conteudo: regioes, horarios, clima | **parcial** - 1 regiao, 2 periodos, 3 climas |
+| 11 | Conteudo: regioes, horarios, clima | **parcial** - 1 regiao, 2 periodos, 3 climas, 3 tiers de peca |
 | 12 | Gerador procedural | **feito** - 200/200 validas |
 | 13 | Automacao + frota | **feito** - frota sem execucao paralela ainda |
 | 14 | Prestigio, temporadas, Endless | **parcial** - prestigio e arvore de Fama existem; Endless nao |
@@ -218,7 +217,8 @@ recuperacao de backup.
 3. **Modelos e prefabs de modulo** - trocar as primitivas.
 4. **Execucao paralela da frota** - hoje uma vaga corre por vez.
 5. **Endless** (14.6) e o resto do conteudo da Fase 11.
-6. **Pecas acima do tier D.** As 20 bases sao TODAS tier D, entao a escada da loja tem
-   um degrau so: o portao por tier existe e e testado, mas nao tem o que liberar ainda.
-   Enquanto isso durar, o cash volta a acumular assim que o jogador comprar as 13 pecas
-   a venda.
+6. **Pistas de tier C e B.** O tier de uma corrida vem da PISTA (`RaceFactory`), e as
+   3 pistas do MVP sao tier D. Entao peca de C e B hoje so vem da LOJA: o corte por tier
+   do loot esta escrito e testado, mas nenhuma corrida chega a tier C para exercita-lo em
+   jogo. Sem pista de C, subir de tier tambem nao aumenta recompensa (`rewardScale` 1,55 e
+   2,40 ficam sem uso).

@@ -1,4 +1,4 @@
-// 20 bases artesanais nos 8 slots. GDD 0.2 secoes 9.1, 10.1, 22.1.
+// 36 bases artesanais nos 8 slots, em tres tiers. GDD 0.2 secoes 9.1, 10.1, 14.2, 22.1.
 //
 // D-04: peca e gerada proceduralmente SOBRE base artesanal. Aqui esta a base; os afixos
 // (affixes.json) e a passiva (passives.json) sao rolados por cima.
@@ -132,6 +132,112 @@
       "id": "aer_fiber", "name": "Paineis de Fibra", "slot": "AeroWeight", "tier": "D",
       "sellValue": 350, "buyCost": 2200, "dropWeight": 0.7, "set": "street_king",
       "stats": { "Weight": -68, "Aero": 22, "Stability": -8 }
+    },
+
+    // =========================================================================
+    //  TIER C  -  reputacao 20 (tiers.json)
+    //
+    //  A escada de tier NAO e "o mesmo numero, maior". Cada peca de C paga o ganho
+    //  com um agravo proporcionalmente MAIOR que a de D (GDD 9.4): o tier sobe o
+    //  teto e a conta junto, senao a escolha de build vira ordenacao por preco.
+    //
+    //  Nenhuma peca de C ou B pertence a um set. Os dois sets do MVP tem exatamente
+    //  4 pecas cada, todas tier D (sets.json), e diluir isso mudaria bonus ja
+    //  calibrados. O efeito colateral e DESEJADO: subir de tier custa o set, e
+    //  ficar em D mais tempo passa a ser uma jogada legitima.
+    // =========================================================================
+    {
+      "id": "eng_forged", "name": "Bloco Preparado", "slot": "Engine", "tier": "C",
+      "sellValue": 1100, "buyCost": 6800, "dropWeight": 0.60,
+      "stats": { "Power": 96, "Reliability": -16, "Cooling": -14 }
+    },
+    {
+      "id": "tur_twin", "name": "Turbo Twin-Scroll", "slot": "Turbo", "tier": "C",
+      "sellValue": 990, "buyCost": 6200, "dropWeight": 0.60,
+      "stats": { "Power": 78, "Initiation": 16, "Cooling": -20, "Reliability": -9 }
+    },
+    {
+      "id": "trn_dogbox", "name": "Cambio Dog Box", "slot": "Transmission", "tier": "C",
+      "sellValue": 880, "buyCost": 5500, "dropWeight": 0.70,
+      "stats": { "Transition": 24, "Aero": -6, "Reliability": -7 }
+    },
+    {
+      "id": "dif_clutch", "name": "LSD de Embreagem Dupla", "slot": "Differential", "tier": "C",
+      "differentialType": "Lsd2Way",
+      "sellValue": 1560, "buyCost": 9800, "dropWeight": 0.55,
+      "stats": { "Initiation": 38, "Angle": 34, "Stability": -24 }
+    },
+    {
+      "id": "sus_adjustable", "name": "Coilover Regulavel", "slot": "Suspension", "tier": "C",
+      "sellValue": 1180, "buyCost": 7400, "dropWeight": 0.60,
+      "stats": { "Steering": 26, "DriftControl": 22, "Grip": -7, "Stability": -10 }
+    },
+    {
+      // Pneu nao sobe de "nivel", muda de PERFIL (GDD 9.3). O semi-slick e a resposta
+      // seca e agarrada - nao um pneu de drift melhor. Quem quer angulo continua no
+      // tir_drift, que e tier D e nao fica obsoleto.
+      "id": "tir_semislick", "name": "Semi-Slick", "slot": "Tires", "tier": "C",
+      "tireProfile": "SemiSlick",
+      "sellValue": 930, "buyCost": 5800, "dropWeight": 0.70,
+      "stats": { "Grip": 14, "Braking": 8, "Angle": -5 }
+    },
+    {
+      "id": "brk_slotted", "name": "Discos Ventilados", "slot": "Brakes", "tier": "C",
+      "sellValue": 900, "buyCost": 5600, "dropWeight": 0.70,
+      "stats": { "Braking": 30, "DriftControl": 10 }
+    },
+    {
+      "id": "aer_widebody", "name": "Widebody com Splitter", "slot": "AeroWeight", "tier": "C",
+      "sellValue": 1120, "buyCost": 7000, "dropWeight": 0.60,
+      "stats": { "Weight": -95, "Aero": 38, "Stability": -13 }
+    },
+
+    // =========================================================================
+    //  TIER B  -  reputacao 45 (tiers.json)
+    // =========================================================================
+    {
+      "id": "eng_stroker", "name": "Motor Stroker", "slot": "Engine", "tier": "B",
+      "sellValue": 4960, "buyCost": 31000, "dropWeight": 0.45,
+      "stats": { "Power": 152, "Reliability": -26, "Cooling": -22 }
+    },
+    {
+      "id": "tur_bigframe", "name": "Turbo Big-Frame", "slot": "Turbo", "tier": "B",
+      "sellValue": 4640, "buyCost": 29000, "dropWeight": 0.40,
+      "stats": { "Power": 124, "Initiation": 24, "Cooling": -32, "Reliability": -16 }
+    },
+    {
+      "id": "trn_sequential", "name": "Cambio Sequencial", "slot": "Transmission", "tier": "B",
+      "sellValue": 4160, "buyCost": 26000, "dropWeight": 0.50,
+      "stats": { "Transition": 38, "Aero": -9, "Reliability": -14 }
+    },
+    {
+      // O unico Competition do jogo. O slot de assinatura (GDD 9.2) precisa que o topo
+      // da escada seja um TIPO novo, e nao o 2-Way com numeros maiores.
+      "id": "dif_comp", "name": "Diferencial de Competicao", "slot": "Differential", "tier": "B",
+      "differentialType": "Competition",
+      "sellValue": 7360, "buyCost": 46000, "dropWeight": 0.35,
+      "stats": { "Initiation": 56, "Angle": 50, "Stability": -36 }
+    },
+    {
+      "id": "sus_pillowball", "name": "Suspensao Pillowball", "slot": "Suspension", "tier": "B",
+      "sellValue": 5440, "buyCost": 34000, "dropWeight": 0.40,
+      "stats": { "Steering": 40, "DriftControl": 34, "Grip": -11, "Stability": -15 }
+    },
+    {
+      "id": "tir_racing", "name": "Pneu de Competicao", "slot": "Tires", "tier": "B",
+      "tireProfile": "Racing",
+      "sellValue": 4320, "buyCost": 27000, "dropWeight": 0.45,
+      "stats": { "Grip": 26, "Braking": 16, "Steering": 8, "Angle": -10 }
+    },
+    {
+      "id": "brk_bigbrake", "name": "Big Brake Kit", "slot": "Brakes", "tier": "B",
+      "sellValue": 4240, "buyCost": 26500, "dropWeight": 0.50,
+      "stats": { "Braking": 48, "DriftControl": 16, "Weight": 14 }
+    },
+    {
+      "id": "aer_carbon", "name": "Monocoque de Carbono", "slot": "AeroWeight", "tier": "B",
+      "sellValue": 5280, "buyCost": 33000, "dropWeight": 0.40,
+      "stats": { "Weight": -150, "Aero": 62, "Stability": -19 }
     }
   ]
 }
