@@ -175,13 +175,12 @@ namespace FramedDrift.Tests.EditMode
         // --- a forma das bases novas -------------------------------------------------
 
         [Test]
-        public void CadaSlotTemPecaEmDCEB()
+        public void CadaSlotTemPecaEmTodoTier()
         {
             for (int slot = 0; slot < 8; slot++)
             {
-                AssertSlotHasTier((PartSlot)slot, TierRank.D);
-                AssertSlotHasTier((PartSlot)slot, TierRank.C);
-                AssertSlotHasTier((PartSlot)slot, TierRank.B);
+                for (int t = 0; t <= (int)TierRank.S; t++)
+                    AssertSlotHasTier((PartSlot)slot, (TierRank)t);
             }
         }
 
@@ -202,13 +201,16 @@ namespace FramedDrift.Tests.EditMode
             // barato que um tier D, a escada leria como desconto, nao como progressao.
             for (int slot = 0; slot < 8; slot++)
             {
-                long maxD = MaxBuyCost((PartSlot)slot, TierRank.D);
-                long minC = MinBuyCost((PartSlot)slot, TierRank.C);
-                long maxC = MaxBuyCost((PartSlot)slot, TierRank.C);
-                long minB = MinBuyCost((PartSlot)slot, TierRank.B);
+                for (int t = 1; t <= (int)TierRank.S; t++)
+                {
+                    long maxBelow = MaxBuyCost((PartSlot)slot, (TierRank)(t - 1));
+                    long minHere = MinBuyCost((PartSlot)slot, (TierRank)t);
+                    if (minHere == long.MaxValue) continue;   // slot sem peca vendida no tier
 
-                Assert.Greater(minC, maxD, "Slot " + (PartSlot)slot + ": tier C tem de custar mais que todo D.");
-                Assert.Greater(minB, maxC, "Slot " + (PartSlot)slot + ": tier B tem de custar mais que todo C.");
+                    Assert.Greater(minHere, maxBelow,
+                        "Slot " + (PartSlot)slot + ": tier " + (TierRank)t
+                        + " tem de custar mais que todo " + (TierRank)(t - 1) + ".");
+                }
             }
         }
 
@@ -227,18 +229,42 @@ namespace FramedDrift.Tests.EditMode
             }
         }
 
+        /// <summary>
+        /// Toda peca acima de D precisa de PELO MENOS UM caminho: a vitrine ou a bancada.
+        ///
+        /// As assinaturas de rival (GDD 13.1) sao de proposito so-bancada - e a unica
+        /// coisa que a planta entrega e a loja nao. O que nao pode existir e peca sem
+        /// nenhum dos dois: ela ficaria no JSON sem jamais chegar a um jogador.
+        /// </summary>
         [Test]
-        public void TodaPecaNovaEVendidaNaLoja()
+        public void TodaPecaNovaTemAoMenosUmCaminho()
         {
-            // Peca de tier alto que nao esta na vitrine so viria de drop - e o drop dela
-            // depende de pista daquele tier, que o MVP ainda nao tem.
             for (int i = 0; i < _content.PartList.Count; i++)
             {
                 PartDef def = _content.PartList[i];
                 if (def.Tier == TierRank.D) continue;
 
-                Assert.Greater(def.BuyCost, 0L, def.Id + " nao tem preco e ficaria inalcancavel.");
+                Assert.IsTrue(def.BuyCost > 0L || def.HasBlueprint,
+                    def.Id + " nao e vendida nem tem planta: inalcancavel.");
             }
+        }
+
+        /// <summary>Assinatura de rival nao se compra - a bancada e o unico caminho.</summary>
+        [Test]
+        public void AssinaturaDeRivalNaoEVendidaNaLoja()
+        {
+            int signatures = 0;
+            for (int i = 0; i < _content.PartList.Count; i++)
+            {
+                PartDef def = _content.PartList[i];
+                if (!def.Id.Contains("_sig_")) continue;
+
+                signatures++;
+                Assert.AreEqual(0L, def.BuyCost, def.Id + " e assinatura e nao pode ter preco.");
+                Assert.IsTrue(def.HasBlueprint, def.Id + " precisa de planta, ou fica inalcancavel.");
+            }
+
+            Assert.AreEqual(4, signatures, "Quatro assinaturas, uma por rival da GDD 13.1.");
         }
 
         [Test]

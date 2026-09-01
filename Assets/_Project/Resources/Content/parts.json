@@ -1,4 +1,5 @@
-// 36 bases artesanais nos 8 slots, em tres tiers. GDD 0.2 secoes 9.1, 10.1, 14.2, 22.1.
+// 56 bases artesanais nos 8 slots: 5 tiers + 4 assinaturas de rival.
+// GDD 0.2 secoes 9.1, 10.1, 13.1, 14.2, 22.1.
 //
 // D-04: peca e gerada proceduralmente SOBRE base artesanal. Aqui esta a base; os afixos
 // (affixes.json) e a passiva (passives.json) sao rolados por cima.
@@ -238,6 +239,146 @@
       "id": "aer_carbon", "name": "Monocoque de Carbono", "slot": "AeroWeight", "tier": "B",
       "sellValue": 5280, "buyCost": 33000, "dropWeight": 0.40,
       "stats": { "Weight": -150, "Aero": 62, "Stability": -19 }
+    },
+
+    // =========================================================================
+    //  TIER A  -  reputacao 70
+    // =========================================================================
+    {
+      "id": "eng_billet", "name": "Bloco Billet", "slot": "Engine", "tier": "A",
+      "sellValue": 14080, "buyCost": 88000, "dropWeight": 0.38,
+      "stats": { "Power": 232, "Reliability": -38, "Cooling": -32 }
+    },
+    {
+      "id": "tur_compound", "name": "Turbo Composto", "slot": "Turbo", "tier": "A",
+      "sellValue": 13120, "buyCost": 82000, "dropWeight": 0.34,
+      "stats": { "Power": 190, "Initiation": 34, "Cooling": -46, "Reliability": -24 }
+    },
+    {
+      "id": "trn_dct", "name": "Cambio de Dupla Embreagem", "slot": "Transmission", "tier": "A",
+      "sellValue": 12480, "buyCost": 78000, "dropWeight": 0.40,
+      "stats": { "Transition": 56, "Aero": -12, "Reliability": -20 }
+    },
+    {
+      "id": "dif_spool", "name": "Diferencial Soldado", "slot": "Differential", "tier": "A",
+      "differentialType": "Competition",
+      "sellValue": 23200, "buyCost": 145000, "dropWeight": 0.28,
+      "stats": { "Initiation": 78, "Angle": 70, "Stability": -50 }
+    },
+    {
+      "id": "sus_multilink", "name": "Multi-link Ajustavel", "slot": "Suspension", "tier": "A",
+      "sellValue": 16640, "buyCost": 104000, "dropWeight": 0.34,
+      "stats": { "Steering": 60, "DriftControl": 52, "Grip": -16, "Stability": -22 }
+    },
+    {
+      // Pneu continua sendo PERFIL, nao nivel (GDD 9.3): este e o pneu de drift que
+      // finalmente e forte, nao um "pneu melhor" que aposenta os outros.
+      "id": "tir_drift_comp", "name": "Pneu de Drift de Competicao", "slot": "Tires", "tier": "A",
+      "tireProfile": "Drift",
+      "sellValue": 13440, "buyCost": 84000, "dropWeight": 0.38,
+      "stats": { "Angle": 22, "Initiation": 18, "Grip": -8 }
+    },
+    {
+      "id": "brk_carbon", "name": "Freio Carbono-Ceramico", "slot": "Brakes", "tier": "A",
+      "sellValue": 12800, "buyCost": 80000, "dropWeight": 0.40,
+      "stats": { "Braking": 76, "DriftControl": 26, "Weight": 8 }
+    },
+    {
+      "id": "aer_active", "name": "Aerofolio Ativo", "slot": "AeroWeight", "tier": "A",
+      "sellValue": 17600, "buyCost": 110000, "dropWeight": 0.32,
+      "stats": { "Weight": -210, "Aero": 92, "Stability": -24 }
+    },
+
+    // =========================================================================
+    //  TIER S  -  reputacao 90
+    //
+    //  Duas pecas de S quebram DE PROPOSITO a regra "o agravo cresce junto": o
+    //  diferencial ativo e o efeito solo punem MENOS que os equivalentes de A.
+    //  E o pagamento do topo da escada - a peca que finalmente administra a
+    //  propria instabilidade - e vale porque e a excecao, nao a regra.
+    // =========================================================================
+    {
+      "id": "eng_race", "name": "Motor de Competicao", "slot": "Engine", "tier": "S",
+      "sellValue": 44800, "buyCost": 280000, "dropWeight": 0.28,
+      "stats": { "Power": 340, "Reliability": -54, "Cooling": -46 }
+    },
+    {
+      "id": "tur_antilag", "name": "Sistema Anti-Lag", "slot": "Turbo", "tier": "S",
+      "sellValue": 41600, "buyCost": 260000, "dropWeight": 0.24,
+      "stats": { "Power": 268, "Initiation": 46, "Cooling": -64, "Reliability": -34 }
+    },
+    {
+      "id": "trn_straightcut", "name": "Engrenagens Retas", "slot": "Transmission", "tier": "S",
+      "sellValue": 40000, "buyCost": 250000, "dropWeight": 0.30,
+      "stats": { "Transition": 78, "Aero": -16, "Reliability": -28 }
+    },
+    {
+      "id": "dif_active", "name": "Diferencial Ativo", "slot": "Differential", "tier": "S",
+      "differentialType": "Competition",
+      "sellValue": 73600, "buyCost": 460000, "dropWeight": 0.22,
+      "stats": { "Initiation": 104, "Angle": 94, "Stability": -44 }
+    },
+    {
+      "id": "sus_damper", "name": "Amortecedor de Competicao", "slot": "Suspension", "tier": "S",
+      "sellValue": 52800, "buyCost": 330000, "dropWeight": 0.24,
+      "stats": { "Steering": 84, "DriftControl": 72, "Grip": -22, "Stability": -30 }
+    },
+    {
+      "id": "tir_slick", "name": "Slick de Competicao", "slot": "Tires", "tier": "S",
+      "tireProfile": "Racing",
+      "sellValue": 43200, "buyCost": 270000, "dropWeight": 0.28,
+      "stats": { "Grip": 44, "Braking": 28, "Steering": 14, "Angle": -16 }
+    },
+    {
+      "id": "brk_race", "name": "Freio de Competicao", "slot": "Brakes", "tier": "S",
+      "sellValue": 41600, "buyCost": 260000, "dropWeight": 0.30,
+      "stats": { "Braking": 104, "DriftControl": 36, "Weight": 4 }
+    },
+    {
+      "id": "aer_ground", "name": "Efeito Solo", "slot": "AeroWeight", "tier": "S",
+      "sellValue": 57600, "buyCost": 360000, "dropWeight": 0.24,
+      "stats": { "Weight": -270, "Aero": 128, "Stability": -20 }
+    },
+
+    // =========================================================================
+    //  ASSINATURAS DE RIVAL  -  GDD 13.1
+    //
+    //  buyCost 0 com hasBlueprint true: NAO se compram, so se craftam. Sao a
+    //  unica coisa que a bancada entrega e a loja nao, e e isso que da identidade
+    //  propria a planta - ate aqui bancada e loja disputavam o mesmo catalogo.
+    //
+    //  Cada uma carrega a licao do rival da 13.1 levada ao extremo: um numero
+    //  fora de escala pago por um agravo tambem fora de escala. Nenhuma e "a
+    //  melhor peca do slot" - cada uma e a mais EXTREMA, que e outra coisa.
+    // =========================================================================
+    {
+      // Ken: "top speed puro - vencer nao e tudo". Potencia quase de tier S com
+      // confiabilidade que obriga o jogador a conviver com a oficina.
+      "id": "eng_sig_ken", "name": "Bloco do Ken", "slot": "Engine", "tier": "A",
+      "sellValue": 30000, "buyCost": 0, "hasBlueprint": true, "dropWeight": 0.30,
+      "stats": { "Power": 300, "Reliability": -72, "Cooling": -50 }
+    },
+    {
+      // Mika: "Transition e DriftControl importam". Soma os dois sem cobrar em
+      // Angle - premia quem pilota limpo, e cobra em potencia.
+      "id": "trn_sig_mika", "name": "Cambio da Mika", "slot": "Transmission", "tier": "A",
+      "sellValue": 30000, "buyCost": 0, "hasBlueprint": true, "dropWeight": 0.30,
+      "stats": { "Transition": 74, "DriftControl": 40, "Power": -60, "Aero": -14 }
+    },
+    {
+      // Ryu: "angulo extremo custa velocidade". O maior Angle do jogo, com o
+      // preco escrito na propria peca.
+      "id": "dif_sig_ryu", "name": "Diferencial do Ryu", "slot": "Differential", "tier": "S",
+      "differentialType": "Competition",
+      "sellValue": 60000, "buyCost": 0, "hasBlueprint": true, "dropWeight": 0.24,
+      "stats": { "Angle": 130, "Initiation": 90, "Stability": -78, "Grip": -20 }
+    },
+    {
+      // Zero: "glass cannon; as vezes se destroi sozinho". Aero de outro patamar
+      // num carro que mal aguenta a propria corrida.
+      "id": "aer_sig_zero", "name": "Carenagem do Zero", "slot": "AeroWeight", "tier": "S",
+      "sellValue": 60000, "buyCost": 0, "hasBlueprint": true, "dropWeight": 0.24,
+      "stats": { "Weight": -330, "Aero": 150, "Stability": -56, "Reliability": -40 }
     }
   ]
 }

@@ -46,6 +46,21 @@ namespace FramedDrift.Tests.EditMode
             "sus_pillowball", "tir_racing", "brk_bigbrake", "aer_carbon",
         };
 
+        // O pneu de cada build e o mais AGARRADO disponivel ate aquele tier, nao o
+        // pneu daquele tier: perfil nao e nivel (GDD 9.3), e o tir_drift_comp de A e a
+        // alternativa de angulo, nao um upgrade do racing de B.
+        private static readonly string[] TierABuild =
+        {
+            "eng_billet", "tur_compound", "trn_dct", "dif_spool",
+            "sus_multilink", "tir_racing", "brk_carbon", "aer_active",
+        };
+
+        private static readonly string[] TierSBuild =
+        {
+            "eng_race", "tur_antilag", "trn_straightcut", "dif_active",
+            "sus_damper", "tir_slick", "brk_race", "aer_ground",
+        };
+
         /// <summary>
         /// A pista de ENTRADA de cada tier - a de menor reputacao exigida - tem de cair
         /// na faixa de 55-75% da GDD 21.2 com a build daquele tier.
@@ -63,7 +78,7 @@ namespace FramedDrift.Tests.EditMode
             var report = new StringBuilder("Pista de entrada por tier:");
             bool ok = true;
 
-            for (int t = 0; t <= (int)TierRank.B; t++)
+            for (int t = 0; t <= (int)TierRank.S; t++)
             {
                 var tier = (TierRank)t;
                 TrackDef entry = EntryTrack(content, tier);
@@ -91,7 +106,7 @@ namespace FramedDrift.Tests.EditMode
             var report = new StringBuilder("Degrau dentro do tier:");
             bool ok = true;
 
-            for (int t = 0; t <= (int)TierRank.B; t++)
+            for (int t = 0; t <= (int)TierRank.S; t++)
             {
                 var tier = (TierRank)t;
                 TrackDef entry = EntryTrack(content, tier);
@@ -150,12 +165,82 @@ namespace FramedDrift.Tests.EditMode
         {
             ContentDatabase content = TestWorld.Shared.Content;
 
-            double d = BestCashAtTier(content, TierRank.D);
-            double c = BestCashAtTier(content, TierRank.C);
-            double b = BestCashAtTier(content, TierRank.B);
+            double previous = 0.0;
+            var report = new StringBuilder("Cash por corrida na melhor pista de cada tier:");
 
-            Assert.Greater(c, d, "A melhor pista de C tem de pagar mais que a melhor de D.");
-            Assert.Greater(b, c, "A melhor pista de B tem de pagar mais que a melhor de C.");
+            for (int t = 0; t <= (int)TierRank.S; t++)
+            {
+                var tier = (TierRank)t;
+                double cash = BestCashAtTier(content, tier);
+
+                report.Append('\n').Append("  tier ").Append(tier)
+                      .Append("  ").Append(cash.ToString("N0"));
+
+                Assert.Greater(cash, previous,
+                    "O tier " + tier + " tem de pagar mais que o anterior. " + report);
+                previous = cash;
+            }
+
+            TestContext.WriteLine(report.ToString());
+        }
+
+        /// <summary>
+        /// O teto da GDD 11.6 e de CONDICAO, e o tier multiplica por FORA dele.
+        ///
+        /// Os exemplos que definem o teto de 4,5 na 11.6 sao todos de condicao empilhada
+        /// ("Montanha, 02h, tempestade"), com o tier parado. Grampear o tier junto
+        /// quebraria o topo da escada: o rewardScale de S e 6,20 e estoura 4,5 sozinho,
+        /// em pista seca, de dia, sem trafego - tier A e S pagariam o mesmo que um tier B
+        /// na chuva, e a 14.2 ("suba de tier em vez de moer o mesmo tier") viraria mentira.
+        /// </summary>
+        [Test]
+        public void OTetoDaCondicaoNaoGrampeiaAEscadaDeTier()
+        {
+            TestWorld world = TestWorld.Shared;
+            var b = world.Content.Balance;
+
+            // Condicao branda: o teto nem entra na conta, entao o multiplicador tem de ser
+            // exatamente o rewardScale do tier.
+            for (int t = 0; t <= (int)TierRank.S; t++)
+            {
+                var tier = (TierRank)t;
+                TrackDef track = FirstTrackAtTier(world.Content, tier);
+
+                RaceInstance race = world.Race("kite_130", track.Id, world.FactoryBuild(),
+                                               TuningSetup.Neutral, DriftStyle.Balanced,
+                                               TimeOfDay.Day, Weather.Clear, 1UL);
+
+                float mult = world.Resolver.RewardMultiplier(race);
+                Assert.Greater(mult, 0f);
+
+                if (tier == TierRank.S)
+                    Assert.Greater(mult, b.RewardMultCap,
+                        "O tier S sozinho (rewardScale 6,20) tem de passar do teto de condicao.");
+            }
+        }
+
+        /// <summary>A parte de CONDICAO continua grampeada, que e o que a 11.6 pediu.</summary>
+        [Test]
+        public void ACondicaoSozinhaNuncaPassaDoTeto()
+        {
+            TestWorld world = TestWorld.Shared;
+            var b = world.Content.Balance;
+
+            TrackDef d = FirstTrackAtTier(world.Content, TierRank.D);
+
+            // A pior combinacao possivel, no tier cujo rewardScale e exatamente 1,0.
+            RaceInstance race = world.Race("kite_130", d.Id, world.FactoryBuild(),
+                                           TuningSetup.Neutral, DriftStyle.Reckless,
+                                           TimeOfDay.Night, Weather.HeavyRain, 1UL);
+            race.Conditions.Traffic = TrafficDensity.Heavy;
+
+            float mult = world.Resolver.RewardMultiplier(race);
+
+            Assert.AreEqual(1f, world.Content.Tier(TierRank.D).RewardScale, 0.001f,
+                "O teste so mede a condicao se o tier D valer 1,0.");
+            Assert.LessOrEqual(mult, b.RewardMultCap + 0.001f,
+                "Clima, horario e trafego empilhados tem de continuar grampeados em "
+                + b.RewardMultCap + ".");
         }
 
         [Test]
@@ -163,9 +248,8 @@ namespace FramedDrift.Tests.EditMode
         {
             ContentDatabase content = TestWorld.Shared.Content;
 
-            AssertTierHasTrack(content, TierRank.D);
-            AssertTierHasTrack(content, TierRank.C);
-            AssertTierHasTrack(content, TierRank.B);
+            for (int t = 0; t <= (int)TierRank.S; t++)
+                AssertTierHasTrack(content, (TierRank)t);
         }
 
         /// <summary>
@@ -227,6 +311,8 @@ namespace FramedDrift.Tests.EditMode
         {
             if (tier == TierRank.C) return TierCBuild;
             if (tier == TierRank.B) return TierBBuild;
+            if (tier == TierRank.A) return TierABuild;
+            if (tier == TierRank.S) return TierSBuild;
             return TierDBuild;
         }
 

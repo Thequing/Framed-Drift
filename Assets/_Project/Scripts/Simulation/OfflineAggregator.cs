@@ -343,7 +343,7 @@ namespace FramedDrift.Simulation
             {
                 PartDef def = _content.Part(pool[i]);
                 if ((int)def.Tier > maxTier || def.DropWeight <= 0f) continue;
-                if (def.BuyCost <= 0L) continue;   // peca de serie: planta dela nao vale nada
+                if (!def.HasBlueprint) continue;   // peca de serie: planta dela nao vale nada
 
                 weights[i] = 1f / def.DropWeight;
                 any = true;

@@ -131,10 +131,10 @@ para o porque de JSON em vez de ScriptableObject.
 | `balance.json` | as ~100 constantes das formulas |
 | `tiers.json` | D..S: dificuldade, recompensa, pesos de raridade |
 | `modules.json` | 6 modulos autorais + regras de adjacencia |
-| `tracks.json` | 7 pistas fixas: 3 em D, 2 em C, 2 em B |
+| `tracks.json` | 11 pistas: 3 D + 2 C + 2 B + 2 A + 2 S |
 | `regions.json` | Cidade: pool de modulos, clima, pool de pecas |
 | `cars.json` | Kite 130, Kanto AE, Brute V8 |
-| `parts.json` | 36 bases nos 8 slots, em 3 tiers (20 D + 8 C + 8 B) |
+| `parts.json` | 56 bases: 20 D + 8 C + 8 B + 8 A + 8 S + 4 assinaturas de rival |
 | `affixes.json` | 12 afixos (9 beneficios + 3 trade-offs) |
 | `passives.json` | 8 passivas condicionais (Rare+) |
 | `sets.json` | Street King e Drift Demon |
@@ -156,7 +156,7 @@ Unity.exe -batchmode -runTests -projectPath . -testPlatform EditMode
 Unity.exe -batchmode -runTests -projectPath . -testPlatform PlayMode
 ```
 
-**90 EditMode + 6 PlayMode, todos passando.** Eles nao sao testes de fumaca: sao os
+**94 EditMode + 6 PlayMode, todos passando.** Eles nao sao testes de fumaca: sao os
 criterios de saida da GDD 21.2 escritos como asserts.
 
 ### Harness offline
@@ -171,9 +171,8 @@ relatorio de balanceamento completo) em segundos, sem abrir o editor.
 |---|---|---|
 | Score do carro inicial na pista inicial | 6.3: 6.000-12.000 | **~6.700** |
 | Vitorias do carro inicial | 21.2: 55-75% | **68,3%** |
-| Vitorias na pista de entrada do tier C | 21.2 estendido: 55-75% | **68,8%** |
-| Vitorias na pista de entrada do tier B | 21.2 estendido: 55-75% | **63,7%** |
-| Cash/corrida D -> C -> B | 15.4: tem de subir | **348 -> 1.374 -> 3.738** |
+| Vitorias na entrada de C / B / A / S | 21.2 estendido: 55-75% | **68,8 / 63,7 / 63,2 / 64,3%** |
+| Cash/corrida D -> C -> B -> A -> S | 15.4: tem de subir | **617 -> 1.642 -> 4.467 -> 11.459 -> 32.203** |
 | Primeira planta completa | 10.6: objetivo de longo prazo | **121 corridas (~2,5 h ativas)** |
 | Pedacos de planta offline x online | D-02: +-8% | **dentro da faixa** |
 | Uplift por presenca | 3.6 / 6.2: 20-30% | **~24,5%** |
@@ -206,7 +205,7 @@ recuperacao de backup.
 | 6 | Save + progresso offline | **feito** - paridade em 0,06% |
 | 7-9 | Garagem, tuning, loot, loja | **feito** - vitrine de catalogo fixo por tier |
 | 10 | Progressao, reputacao, tiers, unlocks | **feito** |
-| 11 | Conteudo: regioes, horarios, clima | **parcial** - 1 regiao, 2 periodos, 3 climas; 3 tiers de peca e de pista |
+| 11 | Conteudo: regioes, horarios, clima | **parcial** - 1 regiao, 2 periodos, 3 climas; os 5 tiers de peca e de pista |
 | 12 | Gerador procedural | **feito** - 200/200 validas |
 | 13 | Automacao + frota | **feito** - frota sem execucao paralela ainda |
 | 14 | Prestigio, temporadas, Endless | **parcial** - prestigio e arvore de Fama existem; Endless nao |
@@ -222,10 +221,9 @@ recuperacao de backup.
 3. **Modelos e prefabs de modulo** - trocar as primitivas.
 4. **Execucao paralela da frota** - hoje uma vaga corre por vez.
 5. **Endless** (14.6) e o resto do conteudo da Fase 11.
-6. **Tiers A e S.** A escada esta fechada e medida ate B. Acima disso nao ha peca nem
-   pista, e ha um problema conhecido esperando: `rewardMultCap` e 4,5 e o `rewardScale`
-   de A ja e 3,80 e o de S 6,20 - o de S estoura o teto sozinho, antes de qualquer
-   multiplicador de clima ou trafego. Subir A e S exige rever esse teto junto.
+6. **Segunda regiao.** A escada de tier esta fechada e medida de D a S, mas toda ela
+   acontece em `city`. O mapa e um grafo desde o inicio (`neighbors` ja lista
+   `industrial` e `coast`) e nada preenche esses nos.
 7. **Planta de CARRO.** A da peca esta fechada; a GDD 13.1 promete outra coisa -
    "derrotar o mesmo rival tres vezes desbloqueia seu carro como blueprint". Nada conta
    quantas vezes um rival foi derrotado (`RivalsDefeated` e uma lista de ids, sem

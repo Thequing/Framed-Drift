@@ -42,7 +42,11 @@ namespace FramedDrift.Tests.EditMode
             Assert.AreEqual(20, CountAtTier(db, TierRank.D), "GDD 22.1: 20 bases no tier D.");
             Assert.AreEqual(8, CountAtTier(db, TierRank.C), "Uma base tier C por slot.");
             Assert.AreEqual(8, CountAtTier(db, TierRank.B), "Uma base tier B por slot.");
-            Assert.AreEqual(36, db.PartList.Count, "20 (D) + 8 (C) + 8 (B).");
+
+            // A e S contam 8 do tier + 2 assinaturas de rival cada (GDD 13.1).
+            Assert.AreEqual(10, CountAtTier(db, TierRank.A), "8 bases tier A + 2 assinaturas.");
+            Assert.AreEqual(10, CountAtTier(db, TierRank.S), "8 bases tier S + 2 assinaturas.");
+            Assert.AreEqual(56, db.PartList.Count, "20 D + 8 C + 8 B + 10 A + 10 S.");
             Assert.AreEqual(12, db.AffixList.Count, "GDD 22.1: o MVP tem 12 afixos.");
             Assert.AreEqual(6, db.Modules.Count, "GDD 22.1: o MVP tem 6 modulos.");
             // Mesma historia das pecas: as 3 pistas da GDD 22.1 continuam sendo o tier D
@@ -52,7 +56,9 @@ namespace FramedDrift.Tests.EditMode
             Assert.AreEqual(3, CountTracksAtTier(db, TierRank.D), "GDD 22.1: 3 pistas no tier D.");
             Assert.AreEqual(2, CountTracksAtTier(db, TierRank.C), "2 pistas no tier C.");
             Assert.AreEqual(2, CountTracksAtTier(db, TierRank.B), "2 pistas no tier B.");
-            Assert.AreEqual(7, db.TrackList.Count, "3 (D) + 2 (C) + 2 (B).");
+            Assert.AreEqual(2, CountTracksAtTier(db, TierRank.A), "2 pistas no tier A.");
+            Assert.AreEqual(2, CountTracksAtTier(db, TierRank.S), "2 pistas no tier S.");
+            Assert.AreEqual(11, db.TrackList.Count, "3 D + 2 C + 2 B + 2 A + 2 S.");
             Assert.AreEqual(1, db.RegionList.Count, "GDD 22.1: o MVP tem 1 regiao.");
             Assert.AreEqual(1, db.RivalList.Count, "GDD 22.1: o MVP tem 1 rival.");
             Assert.AreEqual(8, System.Enum.GetValues(typeof(PartSlot)).Length, "GDD 9.1: oito slots.");

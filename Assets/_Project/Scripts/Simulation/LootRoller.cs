@@ -89,9 +89,10 @@ namespace FramedDrift.Simulation
         /// a cauda do RNG (10.6), entao ela precisa apontar para a peca que quase nunca
         /// cai - sortear com o peso normal faria a planta repetir o que o loot ja da.
         ///
-        /// Peca de serie (buyCost 0) fica de fora: ela e gratis e ja vem montada, entao
-        /// uma planta dela seria progresso gasto em nada. Sao 7 das 20 bases tier D, e
-        /// inclui-las diluia um terco dos pedacos.
+        /// So entra quem tem `hasBlueprint`. Peca de serie fica de fora - ela e gratis e
+        /// ja vem montada, entao uma planta dela seria progresso gasto em nada, e sao 7
+        /// das 20 bases tier D diluindo um terco dos pedacos. Peca de assinatura de rival
+        /// entra mesmo sem preco: ela NAO e vendida, e a planta e o unico caminho ate ela.
         /// </summary>
         public string RollBlueprintFragment(RaceInstance race, DeterministicRng rng)
         {
@@ -111,7 +112,7 @@ namespace FramedDrift.Simulation
                 PartDef def = _content.Part(pool[i]);
                 if ((int)def.Tier > maxTier) continue;
                 if (def.DropWeight <= 0f) continue;
-                if (def.BuyCost <= 0L) continue;   // peca de serie: planta dela nao vale nada
+                if (!def.HasBlueprint) continue;   // peca de serie: planta dela nao vale nada
 
                 weights[i] = 1f / def.DropWeight;
                 any = true;

@@ -430,6 +430,7 @@ namespace FramedDrift.Simulation.Content
                     BaseStats = Stats(j["stats"]),
                     SellValue = j["sellValue"].AsLong(),
                     BuyCost = j["buyCost"].AsLong(),
+                    HasBlueprint = j["hasBlueprint"].AsBool(j["buyCost"].AsLong() > 0L),
                     DropWeight = j["dropWeight"].AsFloat(1f),
                     SetId = j["set"].AsString(null),
                 };

@@ -185,6 +185,19 @@ namespace FramedDrift.Simulation.Content
         public long SellValue;
         public long BuyCost;
 
+        /// <summary>
+        /// Esta peca tem planta (GDD 10.6)?
+        ///
+        /// Tres categorias, e `buyCost` sozinho so distingue duas. Peca de SERIE e gratis
+        /// e nao merece planta; peca de LOJA merece; e a peca de ASSINATURA DE RIVAL nao
+        /// e vendida em lugar nenhum E e justamente a que a planta existe para entregar.
+        /// Sem esta flag, a terceira seria confundida com a primeira e ficaria
+        /// inalcancavel por qualquer caminho.
+        ///
+        /// Ausente no JSON, o padrao e "tem planta se a loja vende".
+        /// </summary>
+        public bool HasBlueprint;
+
         /// <summary>Peso relativo dentro do pool de drop do slot.</summary>
         public float DropWeight;
 

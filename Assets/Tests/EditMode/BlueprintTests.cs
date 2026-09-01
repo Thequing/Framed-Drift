@@ -349,6 +349,38 @@ namespace FramedDrift.Tests.EditMode
                 "Primeira planta em " + racesUntilFirst + " corridas.");
         }
 
+        /// <summary>
+        /// As assinaturas de rival (GDD 13.1) sao so-bancada: nao tem preco, entao a
+        /// planta e o UNICO caminho ate elas. Se o sorteio nunca as escolhesse, quatro
+        /// pecas ficariam no JSON sem jamais chegar a um jogador.
+        /// </summary>
+        [Test]
+        public void ACorridaDeTierAltoSorteiaPlantaDeAssinatura()
+        {
+            TrackDef top = null;
+            for (int i = 0; i < _content.TrackList.Count; i++)
+                if (_content.TrackList[i].Tier == TierRank.S) { top = _content.TrackList[i]; break; }
+
+            Assert.IsNotNull(top, "Precisa de uma pista tier S.");
+
+            RaceInstance race = TestWorld.Shared.Race(
+                "kite_130", top.Id, TestWorld.Shared.FactoryBuild(), TuningSetup.Neutral,
+                DriftStyle.Balanced, TimeOfDay.Day, Weather.Clear, 1UL);
+
+            bool sawSignature = false;
+            for (ulong seed = 1UL; seed <= 3000UL && !sawSignature; seed++)
+            {
+                race.Seed = seed;
+                string[] ids = TestWorld.Shared.Resolver.ResolveComplete(race).Rewards.BlueprintIds;
+
+                for (int i = 0; i < ids.Length; i++)
+                    if (ids[i].Contains("_sig_")) sawSignature = true;
+            }
+
+            Assert.IsTrue(sawSignature,
+                "Nenhuma planta de assinatura em 3000 corridas tier S - elas seriam inalcancaveis.");
+        }
+
         private int CountFragmentsOverRaces(int races)
         {
             RaceInstance race = StarterRace(1UL);

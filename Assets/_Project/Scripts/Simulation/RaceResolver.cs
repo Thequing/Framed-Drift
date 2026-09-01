@@ -140,21 +140,33 @@ namespace FramedDrift.Simulation
         }
 
         /// <summary>
-        /// rewardMult = timeMult * weatherMult * trafficMult * tierMult * riskMult,
-        /// com o teto pratico da secao 11.6.
+        /// rewardMult = timeMult * weatherMult * trafficMult * riskMult, GRAMPEADO no teto
+        /// da secao 11.6, e SO ENTAO multiplicado pelo tierMult.
+        ///
+        /// A 11.6 escreve o tier dentro do produto, mas os exemplos que DEFINEM o teto de
+        /// 4,5 sao todos de condicao - "Montanha, 02h, tempestade" - com o tier parado.
+        /// O teto existe para impedir que horario, clima, trafego e regiao se empilhem
+        /// sem limite; e um teto de CONDICAO.
+        ///
+        /// Grampear o tier junto quebra a progressao no topo: o rewardScale de S e 6,20 e
+        /// estoura 4,5 sozinho, em pista seca, as duas da tarde, sem trafego. Tier A e S
+        /// pagariam o MESMO que um tier B em tempestade, e a 14.2 - "suba de tier em vez
+        /// de moer o mesmo tier" - passaria a mentir exatamente onde mais importa.
+        ///
+        /// Entao o teto continua valendo inteiro para o que ele foi escrito, e o tier
+        /// multiplica por fora.
         /// </summary>
         public float RewardMultiplier(RaceInstance race)
         {
             var b = _balance;
             TierDef tier = _content.Tier((TierRank)MathUtil.Clamp(race.TierIndex, 0, 4));
 
-            float mult = b.TimeReward(race.Conditions.TimeOfDay)
-                         * b.WeatherRewardOf(race.Conditions.Weather)
-                         * b.TrafficRewardOf(race.Conditions.Traffic)
-                         * tier.RewardScale
-                         * race.RewardMultiplier;
+            float conditions = b.TimeReward(race.Conditions.TimeOfDay)
+                               * b.WeatherRewardOf(race.Conditions.Weather)
+                               * b.TrafficRewardOf(race.Conditions.Traffic)
+                               * race.RewardMultiplier;
 
-            return MathUtil.Min(mult, b.RewardMultCap);
+            return MathUtil.Min(conditions, b.RewardMultCap) * tier.RewardScale;
         }
 
         private static int CountProximitySaves(RaceResult result)

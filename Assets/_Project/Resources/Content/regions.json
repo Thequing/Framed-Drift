@@ -32,13 +32,21 @@
       // aqui sem vazar para a corrida tier D de quem acabou de comecar.
       "partPool": [
         "eng_stock", "eng_street", "eng_sport", "eng_forged", "eng_stroker",
+        "eng_billet", "eng_race", "eng_sig_ken",
         "tur_stock", "tur_sport", "tur_twin", "tur_bigframe",
+        "tur_compound", "tur_antilag",
         "trn_stock", "trn_short", "trn_dogbox", "trn_sequential",
+        "trn_dct", "trn_straightcut", "trn_sig_mika",
         "dif_open", "dif_street", "dif_lsd15", "dif_lsd2way", "dif_clutch", "dif_comp",
+        "dif_spool", "dif_active", "dif_sig_ryu",
         "sus_stock", "sus_coilover", "sus_adjustable", "sus_pillowball",
+        "sus_multilink", "sus_damper",
         "tir_street", "tir_drift", "tir_wet", "tir_semislick", "tir_racing",
+        "tir_drift_comp", "tir_slick",
         "brk_stock", "brk_sport", "brk_slotted", "brk_bigbrake",
-        "aer_stock", "aer_fiber", "aer_widebody", "aer_carbon"
+        "brk_carbon", "brk_race",
+        "aer_stock", "aer_fiber", "aer_widebody", "aer_carbon",
+        "aer_active", "aer_ground", "aer_sig_zero"
       ]
     }
   ]

@@ -1,4 +1,5 @@
-// Sete pistas fixas: 3 no tier D, 2 em C, 2 em B. GDD 0.2 secoes 11, 14.2 e 22.1.
+// Onze pistas fixas: 3 em D, 2 em C, 2 em B, 2 em A, 2 em S.
+// GDD 0.2 secoes 11, 14.2 e 22.1.
 //
 // Montadas a mao: o gerador procedural e a Fase 12, e produz exatamente este formato.
 // Escala da secao 5.1: 18-30 segmentos, ~1,2-2,0 km.
@@ -175,6 +176,98 @@
         "scurve", "gentle_l", "str_med", "sharp_r",
         "gentle_r", "str_med", "scurve", "str_med",
         "gentle_l", "str_med"
+      ]
+    },
+
+    // =========================================================================
+    //  TIER A  -  reputacao 70
+    // =========================================================================
+    {
+      "id": "city_riverside",
+      "name": "Centro - Marginal do Rio",
+      "region": "city",
+      "tier": "A",
+      "baseTimeSeconds": 75,
+      "scoreMultiplier": 2.15,
+      "baseCash": 1900,
+      "baseXp": 520,
+      "reputationRequired": 70,
+      "modules": [
+        "str_med", "gentle_r", "scurve", "str_med",
+        "sharp_l", "gentle_r", "str_med", "scurve",
+        "gentle_l", "str_med", "sharp_r", "str_med",
+        "gentle_l", "scurve", "gentle_r", "sharp_l",
+        "str_med", "gentle_l", "str_med", "sharp_r",
+        "gentle_r", "scurve", "str_med", "gentle_l",
+        "str_med", "str_med"
+      ]
+    },
+
+    {
+      "id": "city_spiral",
+      "name": "Centro - Espiral do Estacionamento",
+      "region": "city",
+      "tier": "A",
+      "baseTimeSeconds": 76,
+      "scoreMultiplier": 2.40,
+      "baseCash": 2300,
+      "baseXp": 640,
+      "reputationRequired": 80,
+      "modules": [
+        "str_med", "sharp_r", "gentle_r", "sharp_l",
+        "gentle_l", "scurve", "str_med", "sharp_r",
+        "gentle_r", "scurve", "gentle_l", "sharp_l",
+        "str_med", "scurve", "gentle_r", "sharp_r",
+        "gentle_l", "str_med", "sharp_l", "gentle_r",
+        "scurve", "str_med", "gentle_l", "sharp_r",
+        "str_med", "gentle_r", "str_med", "gentle_l"
+      ]
+    },
+
+    // =========================================================================
+    //  TIER S  -  reputacao 90. O fim da escada do MVP.
+    // =========================================================================
+    {
+      "id": "city_night_ring",
+      "name": "Centro - Anel Noturno",
+      "region": "city",
+      "tier": "S",
+      "baseTimeSeconds": 87,
+      "scoreMultiplier": 2.85,
+      "baseCash": 3400,
+      "baseXp": 900,
+      "reputationRequired": 90,
+      "modules": [
+        "str_med", "scurve", "gentle_l", "sharp_r",
+        "str_med", "gentle_r", "scurve", "gentle_l",
+        "sharp_l", "gentle_r", "str_med", "scurve",
+        "str_med", "sharp_r", "gentle_l", "sharp_l",
+        "gentle_r", "scurve", "gentle_l", "str_med",
+        "sharp_r", "str_med", "gentle_r", "scurve",
+        "str_med", "gentle_l", "sharp_l", "str_med",
+        "gentle_r", "str_med"
+      ]
+    },
+
+    {
+      "id": "city_grand_circuit",
+      "name": "Centro - Grande Circuito",
+      "region": "city",
+      "tier": "S",
+      "baseTimeSeconds": 83,
+      "scoreMultiplier": 3.20,
+      "baseCash": 4200,
+      "baseXp": 1150,
+      "reputationRequired": 100,
+      "modules": [
+        "str_med", "sharp_l", "gentle_r", "scurve",
+        "gentle_l", "sharp_r", "str_med", "scurve",
+        "gentle_r", "sharp_l", "gentle_l", "scurve",
+        "str_med", "sharp_r", "gentle_r", "sharp_l",
+        "str_med", "scurve", "gentle_l", "sharp_r",
+        "gentle_r", "scurve", "str_med", "sharp_l",
+        "gentle_l", "str_med", "sharp_r", "gentle_r",
+        "scurve", "str_med"
       ]
     }
   ]
