@@ -66,6 +66,9 @@ namespace FramedDrift.App
         public PrestigeSystem Prestige { get; private set; }
         public AchievementSystem Achievements { get; private set; }
 
+        public RivalSystem Rivals { get; private set; }
+        public RivalResolver RivalRaces { get; private set; }
+
         public RuleEngine Rules { get; private set; }
         public FleetManager Fleet { get; private set; }
         public AutomationRules Automation { get; private set; }
@@ -86,6 +89,17 @@ namespace FramedDrift.App
 
         public int CurrentSegment { get; private set; }
         public OfflineReport PendingOfflineReport { get; private set; }
+
+        // --- encontro de rival pendente (13.1) ---------------------------------------
+
+        /// <summary>Quem aparece na PROXIMA corrida. Null quando ninguem apareceu.</summary>
+        public RivalDef PendingRival { get; private set; }
+
+        /// <summary>O desafio ja foi aceito? A automacao ou o jogador respondem.</summary>
+        public bool RivalAccepted { get; private set; }
+
+        /// <summary>O que aconteceu no ultimo duelo. E o que a tela de resultado mostra.</summary>
+        public RivalOutcome LastRivalOutcome { get; private set; }
 
         private CollectibleHaul _haul;
         private DriftScorer.Context _scoreContext;
@@ -135,6 +149,8 @@ namespace FramedDrift.App
             Missions = new MissionSystem();
             Prestige = new PrestigeSystem(Save);
             Achievements = new AchievementSystem(Save);
+            Rivals = new RivalSystem(Save, Content);
+            RivalRaces = new RivalResolver(Content, Resolver);
 
             Automation = AutomationRules.From(Save.Automation);
             Rules = new RuleEngine(Save, Content, Inventory, Crafting, Builds, Economy, Reputation);
@@ -275,11 +291,48 @@ namespace FramedDrift.App
             for (int i = 0; i < report.BlueprintFragments.Count; i++)
                 Crafting.AddBlueprintFragment(report.BlueprintFragments[i]);
 
+            CreditOfflineRivals(report);
+
             Missions.RecordOffline(report);
             Reputation.Evaluate();
 
             PendingOfflineReport = null;
             SaveNow();
+        }
+
+        /// <summary>
+        /// Credita os rivais que a ausencia encontrou (GDD 13.1 / D-06).
+        ///
+        /// Passa pelo MESMO <see cref="RivalSystem"/> do caminho online, uma chamada por
+        /// derrota: e ele que conta ate tres e entrega a planta do carro. Somar direto no
+        /// save aqui faria a planta de carro nunca sair de uma operacao de oito horas -
+        /// exatamente o modo de jogo que a 13.2 promete que resolve tudo sozinho.
+        /// </summary>
+        private void CreditOfflineRivals(OfflineReport report)
+        {
+            if (report.RivalDefeats <= 0 || string.IsNullOrEmpty(report.RivalId)) return;
+
+            RivalDef rival = Content.RivalOrNull(report.RivalId);
+            if (rival == null) return;
+
+            for (int i = 0; i < report.RivalEncounters; i++)
+            {
+                bool won = i < report.RivalDefeats;
+                RivalReward reward = Rivals.Record(new RivalOutcome
+                {
+                    RivalId = rival.Id,
+                    RivalDisplayName = rival.DisplayName,
+                    CarId = rival.CarId,
+                    SignaturePartId = rival.SignaturePartId,
+                    PlayerScore = won ? 1L : 0L,
+                    RivalScore = 0L,
+                });
+
+                // Mesmo metodo do caminho online: peca, pedacos e missao saem de um lugar
+                // so. Duplicar a entrega aqui era como a taxa de pedacos offline
+                // divergiria da online sem ninguem notar.
+                ApplyRivalReward(reward);
+            }
         }
 
         // --- loop de corrida --------------------------------------------------------------
@@ -428,6 +481,12 @@ namespace FramedDrift.App
 
         private void FinishRace(CarInstance car)
         {
+            // O duelo resolve ANTES de Finalize, e a ordem importa: o rival troca um
+            // adversario anonimo do grid por um carro de verdade, o que muda a POSICAO -
+            // e a posicao entra no calculo de cash (GDD 15.2). Resolver depois pagaria a
+            // corrida pela posicao errada.
+            RivalReward rivalReward = ResolveRivalDuel();
+
             RaceRewards rewards = Resolver.Finalize(CurrentRace, CurrentResult, _haul);
 
             long offlineScore = Resolver.Scorer.ScoreWithoutPromotions(CurrentResult, in _scoreContext);
@@ -445,6 +504,8 @@ namespace FramedDrift.App
             if (CurrentResult.Won) car.Saved.Wins++;
             if (rewards.DriftScore > car.Saved.BestScore) car.Saved.BestScore = rewards.DriftScore;
 
+            ApplyRivalReward(rivalReward);
+
             Missions.RecordRace(CurrentResult, CurrentRace.Conditions.TimeOfDay == TimeOfDay.Night);
             Achievements.Evaluate(CurrentResult, CurrentRace, CurrentResult.RiskIndex, Content.Balance);
 
@@ -459,9 +520,52 @@ namespace FramedDrift.App
                 Result = CurrentResult,
                 Rewards = rewards,
                 ScoreFromPresence = presence,
+                Rival = LastRivalOutcome,
             });
 
             SaveNow();
+        }
+
+        /// <summary>
+        /// Corre o rival aceito contra a corrida que o jogador acabou de terminar.
+        ///
+        /// Depois da reproducao de proposito: as promocoes da Entrada Perfeita ja estao
+        /// na timeline, entao o rival enfrenta o score REAL do jogador e nao o que ele
+        /// teria feito ausente. E a mesma razao pela qual DriftScorer roda depois da
+        /// reproducao e nao dentro do simulador (GDD 20.6).
+        /// </summary>
+        private RivalReward ResolveRivalDuel()
+        {
+            LastRivalOutcome = null;
+            if (PendingRival == null || !RivalAccepted) return new RivalReward();
+
+            RivalOutcome outcome = RivalRaces.Resolve(CurrentRace, PendingRival, CurrentResult);
+            LastRivalOutcome = outcome;
+
+            RivalReward reward = Rivals.Record(outcome);
+
+            PendingRival = null;
+            RivalAccepted = false;
+            return reward;
+        }
+
+        /// <summary>
+        /// Entrega o que a derrota rende: a peca que ele usava e os pedacos da planta dela.
+        /// </summary>
+        private void ApplyRivalReward(RivalReward reward)
+        {
+            if (reward.SignaturePartId == null) return;
+
+            // Com o inventario cheio a PECA se perde, como qualquer drop (o RuleEngine
+            // para a operacao nesse caso). Os pedacos entram de qualquer jeito: eles nao
+            // ocupam slot, e e por eles que a derrota continua valendo alguma coisa para
+            // quem esta com a garagem lotada.
+            Inventory.AddFactory(reward.SignaturePartId);
+
+            for (int i = 0; i < reward.BlueprintFragments; i++)
+                Crafting.AddBlueprintFragment(reward.SignaturePartId);
+
+            Missions.RecordRivalDefeat();
         }
 
         /// <summary>
@@ -473,8 +577,58 @@ namespace FramedDrift.App
         private void RollForecast()
         {
             RegionDef region = Content.Region(ActiveTrack().RegionId);
-            var events = new RngStreams(NextSeed()).Events;
-            _forecast = Factory.RollWeather(region, events);
+            var streams = new RngStreams(NextSeed());
+            _forecast = Factory.RollWeather(region, streams.Events);
+
+            RollRivalEncounter(streams);
+        }
+
+        /// <summary>
+        /// Sorteia o rival da PROXIMA corrida, na mesma antecedencia da previsao do tempo.
+        ///
+        /// Antecedencia e o que permite o prompt da 13.1 existir sem parar o jogo: um
+        /// modal no meio do auto-race travaria o loop de farm, e a 13.2 e explicita em
+        /// que o encontro e "sempre opcional, sempre resolvivel pela automacao". Quem
+        /// nao responde, ignora - e ignorar nunca custa nada.
+        /// </summary>
+        private void RollRivalEncounter(RngStreams streams)
+        {
+            CarInstance car = ActiveCar();
+            if (car == null) return;
+
+            RaceInstance preview = BuildRace(car, Save.Progress.TrackId, 0UL);
+            PendingRival = RivalRaces.RollEncounter(preview, streams.Rival);
+            RivalAccepted = false;
+
+            if (PendingRival == null) return;
+
+            // Ausente, a regra decide (GDD 16 / 13.1). Este e o unico lugar que le
+            // AcceptRivalChallenges - a regra existia no painel desde a Fase 13 e nunca
+            // tinha quem a consultasse.
+            if (Rules.AcceptRival(Automation)) RivalAccepted = true;
+
+            EventBus.Publish(new RivalDetected
+            {
+                RivalId = PendingRival.Id,
+                DisplayName = PendingRival.DisplayName,
+                CarId = PendingRival.CarId,
+                LessonText = PendingRival.LessonText,
+                Defeats = Rivals.DefeatsOf(PendingRival.Id),
+                DefeatsUntilCarBlueprint = Rivals.DefeatsUntilCarBlueprint(PendingRival.Id),
+            });
+        }
+
+        /// <summary>DESAFIAR. So o botao da 13.1 chama isto.</summary>
+        public void AcceptRival()
+        {
+            if (PendingRival != null) RivalAccepted = true;
+        }
+
+        /// <summary>IGNORAR. Sempre gratis: recusar um rival nunca pode custar nada (13.2).</summary>
+        public void IgnoreRival()
+        {
+            PendingRival = null;
+            RivalAccepted = false;
         }
 
         public Weather Forecast { get { return _forecast; } }

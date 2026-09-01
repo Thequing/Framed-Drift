@@ -350,28 +350,47 @@
     //  Cada uma carrega a licao do rival da 13.1 levada ao extremo: um numero
     //  fora de escala pago por um agravo tambem fora de escala. Nenhuma e "a
     //  melhor peca do slot" - cada uma e a mais EXTREMA, que e outra coisa.
+    //
+    //  O TIER DE CADA UMA E O TIER DO SEU DONO, e isso nao e arrumacao: a peca
+    //  dropa quando o rival perde (13.1), entao uma assinatura acima do tier do
+    //  rival entregaria numa corrida o que a escada da 14.2 raciona em horas.
+    //  Cada uma fica um degrau acima da peca de LOJA do seu tier, com o agravo
+    //  proporcionalmente maior - a mesma troca da 12.4, vestida de rival.
     // =========================================================================
     {
-      // Ken: "top speed puro - vencer nao e tudo". Potencia quase de tier S com
-      // confiabilidade que obriga o jogador a conviver com a oficina.
-      "id": "eng_sig_ken", "name": "Bloco do Ken", "slot": "Engine", "tier": "A",
-      "sellValue": 30000, "buyCost": 0, "hasBlueprint": true, "dropWeight": 0.30,
-      "stats": { "Power": 300, "Reliability": -72, "Cooling": -50 }
+      // AKIRA: "vencer nao e tudo - ele chega na frente e perde no score". E o
+      // diferencial que o faz ir RETO: tracao e estabilidade no lugar de angulo.
+      // A peca precisa concordar com o dono - uma assinatura de angulo na mao de
+      // quem nao pontua subiria o score dele e desmentiria a propria licao.
+      //
+      // Para o JOGADOR ela e a peca de agarre do tier D: a resposta certa quando a
+      // pista pede tempo de volta, e a errada quando pede placar.
+      "id": "dif_sig_akira", "name": "Diferencial do AKIRA", "slot": "Differential", "tier": "D",
+      "differentialType": "StreetLsd",
+      "sellValue": 1200, "buyCost": 0, "hasBlueprint": true, "dropWeight": 0.55,
+      "stats": { "Initiation": -8, "Angle": -18, "Stability": 34, "Grip": 16 }
+    },
+    {
+      // Ken: "top speed puro - vencer nao e tudo". Potencia de tier B num tier C,
+      // com a confiabilidade que obriga o jogador a conviver com a oficina.
+      "id": "eng_sig_ken", "name": "Bloco do Ken", "slot": "Engine", "tier": "C",
+      "sellValue": 2200, "buyCost": 0, "hasBlueprint": true, "dropWeight": 0.55,
+      "stats": { "Power": 130, "Reliability": -34, "Cooling": -26 }
     },
     {
       // Mika: "Transition e DriftControl importam". Soma os dois sem cobrar em
       // Angle - premia quem pilota limpo, e cobra em potencia.
-      "id": "trn_sig_mika", "name": "Cambio da Mika", "slot": "Transmission", "tier": "A",
-      "sellValue": 30000, "buyCost": 0, "hasBlueprint": true, "dropWeight": 0.30,
-      "stats": { "Transition": 74, "DriftControl": 40, "Power": -60, "Aero": -14 }
+      "id": "trn_sig_mika", "name": "Cambio da Mika", "slot": "Transmission", "tier": "B",
+      "sellValue": 8300, "buyCost": 0, "hasBlueprint": true, "dropWeight": 0.45,
+      "stats": { "Transition": 46, "DriftControl": 24, "Power": -34, "Aero": -9 }
     },
     {
-      // Ryu: "angulo extremo custa velocidade". O maior Angle do jogo, com o
+      // Ryu: "angulo extremo custa velocidade". O maior Angle do tier, com o
       // preco escrito na propria peca.
-      "id": "dif_sig_ryu", "name": "Diferencial do Ryu", "slot": "Differential", "tier": "S",
+      "id": "dif_sig_ryu", "name": "Diferencial do Ryu", "slot": "Differential", "tier": "A",
       "differentialType": "Competition",
-      "sellValue": 60000, "buyCost": 0, "hasBlueprint": true, "dropWeight": 0.24,
-      "stats": { "Angle": 130, "Initiation": 90, "Stability": -78, "Grip": -20 }
+      "sellValue": 46000, "buyCost": 0, "hasBlueprint": true, "dropWeight": 0.28,
+      "stats": { "Angle": 92, "Initiation": 62, "Stability": -60, "Grip": -16 }
     },
     {
       // Zero: "glass cannon; as vezes se destroi sozinho". Aero de outro patamar

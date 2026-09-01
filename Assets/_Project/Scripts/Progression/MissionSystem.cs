@@ -116,6 +116,18 @@ namespace FramedDrift.Progression
                         Advance(MissionMetric.RarePartsFound, 1);
         }
 
+        /// <summary>
+        /// Uma derrota de rival (GDD 13.1).
+        ///
+        /// A missao semanal existia desde a Fase 10 e era incumprivel: nada avancava a
+        /// metrica. Fica fora de RecordRace porque a derrota nao acontece em toda corrida
+        /// - so quando houve encontro e o jogador venceu no score.
+        /// </summary>
+        public void RecordRivalDefeat()
+        {
+            Advance(MissionMetric.RivalsDefeated, 1);
+        }
+
         /// <summary>Agrega uma ausencia inteira de uma vez. GDD 17.2.</summary>
         public void RecordOffline(OfflineReport report)
         {

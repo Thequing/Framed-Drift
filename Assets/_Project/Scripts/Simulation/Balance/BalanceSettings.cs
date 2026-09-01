@@ -238,6 +238,11 @@ namespace FramedDrift.Simulation.Balance
         public int ReputationPerWin;            // 3
         public int ReputationPerPodium;         // 1
 
+        // --- rivais (13.1) ------------------------------------------------------
+        public float RivalEncounterChance;      // 0.08 - por corrida, so no tier do rival
+        public int RivalDefeatsForCarBlueprint; // 3 - "derrotar tres vezes" da GDD 13.1
+        public int RivalDefeatFragments;        // pedacos da assinatura por derrota
+
         // --- loot (10) ----------------------------------------------------------
         public float DropChanceBase;            // 0.55
         public float DropChancePerRisk;         // 0.004

@@ -264,7 +264,8 @@ namespace FramedDrift.Tests.EditMode
                 Assert.IsTrue(def.HasBlueprint, def.Id + " precisa de planta, ou fica inalcancavel.");
             }
 
-            Assert.AreEqual(4, signatures, "Quatro assinaturas, uma por rival da GDD 13.1.");
+            Assert.AreEqual(_content.RivalList.Count, signatures,
+                "Uma assinatura por rival (GDD 13.1) - nem sobrando, nem faltando dono.");
         }
 
         [Test]

@@ -377,6 +377,16 @@ namespace FramedDrift.Simulation.Content
         /// <summary>A peca que ele usa - e que dropa quando e derrotado.</summary>
         public string SignaturePartId;
 
+        /// <summary>
+        /// A build dele, por id de peca. GDD 13.1: "carros REAIS, com build real".
+        ///
+        /// Existe como CONTEUDO e nao como bonus de stat porque a 13.1 exige que a build
+        /// do rival seja legivel e contra-atacavel - o jogador tem de poder olhar o que
+        /// ele monta e responder. Um numero opaco no statBonus nao se contra-ataca.
+        /// Slot nao listado fica com a peca de serie.
+        /// </summary>
+        public string[] BuildPartIds;
+
         public string LessonText;
         public int TierIndex;
     }

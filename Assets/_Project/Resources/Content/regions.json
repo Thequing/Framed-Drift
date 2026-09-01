@@ -30,15 +30,20 @@
       // O pool lista TUDO que existe na regiao, de D a S. Quem corta por tier e o
       // LootRoller, contra o tier da CORRIDA - por isso uma peca tier B pode morar
       // aqui sem vazar para a corrida tier D de quem acabou de comecar.
+      //
+      // As assinaturas de rival NAO estao aqui, e o validador recusa o conteudo se
+      // alguem as devolver (GDD 13.1): a peca do rival dropa quando o rival perde.
+      // Enquanto ela tambem caia do loot, derrotar o dono era o caminho mais LENTO
+      // para a mesma peca, e a derrota deixava de ser um evento.
       "partPool": [
         "eng_stock", "eng_street", "eng_sport", "eng_forged", "eng_stroker",
-        "eng_billet", "eng_race", "eng_sig_ken",
+        "eng_billet", "eng_race",
         "tur_stock", "tur_sport", "tur_twin", "tur_bigframe",
         "tur_compound", "tur_antilag",
         "trn_stock", "trn_short", "trn_dogbox", "trn_sequential",
-        "trn_dct", "trn_straightcut", "trn_sig_mika",
+        "trn_dct", "trn_straightcut",
         "dif_open", "dif_street", "dif_lsd15", "dif_lsd2way", "dif_clutch", "dif_comp",
-        "dif_spool", "dif_active", "dif_sig_ryu",
+        "dif_spool", "dif_active",
         "sus_stock", "sus_coilover", "sus_adjustable", "sus_pillowball",
         "sus_multilink", "sus_damper",
         "tir_street", "tir_drift", "tir_wet", "tir_semislick", "tir_racing",
@@ -46,7 +51,7 @@
         "brk_stock", "brk_sport", "brk_slotted", "brk_bigbrake",
         "brk_carbon", "brk_race",
         "aer_stock", "aer_fiber", "aer_widebody", "aer_carbon",
-        "aer_active", "aer_ground", "aer_sig_zero"
+        "aer_active", "aer_ground"
       ]
     }
   ]

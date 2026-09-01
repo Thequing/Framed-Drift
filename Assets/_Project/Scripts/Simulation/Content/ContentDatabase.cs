@@ -49,6 +49,20 @@ namespace FramedDrift.Simulation.Content
         public RegionDef Region(string id) { return Lookup(Regions, id, "regiao"); }
         public RivalDef Rival(string id) { return Lookup(Rivals, id, "rival"); }
 
+        public CarDef CarOrNull(string id)
+        {
+            if (string.IsNullOrEmpty(id)) return null;
+            CarDef v;
+            return Cars.TryGetValue(id, out v) ? v : null;
+        }
+
+        public RivalDef RivalOrNull(string id)
+        {
+            if (string.IsNullOrEmpty(id)) return null;
+            RivalDef v;
+            return Rivals.TryGetValue(id, out v) ? v : null;
+        }
+
         public SetDef SetOrNull(string id)
         {
             if (string.IsNullOrEmpty(id)) return null;

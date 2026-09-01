@@ -216,6 +216,13 @@
   // para a peca que raramente cai. blueprintFragmentsPerBlueprint e o "/5" da secao 10.6.
   "blueprintFragmentChance": 0.30,
   "blueprintFragmentsPerBlueprint": 5,
+  // Rivais (GDD 13.1). O encontro so e sorteado no tier do rival, entao a chance por
+  // corrida e a chance de ver AQUELE rival - nao a de ver "um rival qualquer".
+  // rivalDefeatsForCarBlueprint e o "tres vezes" literal da secao 13.1.
+  "rivalEncounterChance": 0.08,
+  "rivalDefeatsForCarBlueprint": 3,
+  "rivalDefeatFragments": 2,
+
   "reputationPerWin": 3,
   "reputationPerPodium": 1,
 

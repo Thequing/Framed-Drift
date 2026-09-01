@@ -134,6 +134,12 @@ namespace FramedDrift.Progression
         /// </summary>
         public bool MeetsUnlock(CarDef car)
         {
+            // A planta do carro (tres derrotas do dono, GDD 13.1) e um ATALHO: ela
+            // dispensa a reputacao que o carro pedia. Sem isso, "derrotar o rival te da o
+            // carro dele" nao seria recompensa nenhuma - o jogador ja ia receber o mesmo
+            // carro por reputacao, e a derrota so teria adiantado o que ja vinha.
+            if (_save.Progress.CarBlueprints.Contains(car.Id)) return true;
+
             UnlockRule rule = car.Unlock;
             if (rule == null) return true;
 

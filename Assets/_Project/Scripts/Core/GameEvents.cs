@@ -36,6 +36,9 @@ namespace FramedDrift.Core
 
         /// <summary>Quanto do score veio das promocoes do jogador. Sempre 0 offline.</summary>
         public long ScoreFromPresence;
+
+        /// <summary>O duelo desta corrida, ou null quando nao houve rival. GDD 13.1.</summary>
+        public RivalOutcome Rival;
     }
 
     /// <summary>Publicado a cada segmento durante a reproducao. Alimenta os pop-ups da 6.4.</summary>
@@ -58,6 +61,34 @@ namespace FramedDrift.Core
     }
 
     /// <summary>O relatorio de ausencia esta pronto. A tela de retorno assina isto. GDD 17.4.</summary>
+    /// <summary>Um rival apareceu e espera resposta: DESAFIAR ou IGNORAR. GDD 13.1.</summary>
+    public struct RivalDetected
+    {
+        public string RivalId;
+        public string DisplayName;
+        public string CarId;
+        public string LessonText;
+        public int Defeats;
+        public int DefeatsUntilCarBlueprint;
+    }
+
+    /// <summary>O jogador venceu no Drift Score. GDD 13.1 / D-03.</summary>
+    public struct RivalDefeated
+    {
+        public string RivalId;
+        public string DisplayName;
+        public int Defeats;
+        public string SignaturePartId;
+    }
+
+    /// <summary>Tres derrotas fecharam a planta do carro dele. GDD 13.1.</summary>
+    public struct CarBlueprintUnlocked
+    {
+        public string CarId;
+        public string DisplayName;
+        public string RivalId;
+    }
+
     public struct OfflineReportReady
     {
         public OfflineReport Report;

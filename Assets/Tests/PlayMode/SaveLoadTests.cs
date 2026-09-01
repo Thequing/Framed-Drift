@@ -78,6 +78,61 @@ namespace FramedDrift.Tests.PlayMode
             Assert.AreEqual(1, loaded.Progress.BlueprintFragments.Count);
         }
 
+        /// <summary>
+        /// Migracao v2 -> v3 (GDD 20.5): a v3 acrescentou a CONTAGEM de derrotas por
+        /// rival e a lista de plantas de carro.
+        ///
+        /// Um save v2 ja podia ter derrotado rivais - `RivalsDefeated` era uma lista de
+        /// ids, sem contagem. Voltar do patch valendo zero derrotas apagaria corridas que
+        /// o jogador ja tinha ganhado, entao cada id antigo vale UMA derrota.
+        /// </summary>
+        [Test]
+        public void SaveV2_MigratesToV3_PreservingRivalsAlreadyDefeated()
+        {
+            SaveManager.DeleteAll();
+
+            const string v2 =
+                "{\"Version\":2,\"Cash\":900,\"Scrap\":4,\"Reputation\":11," +
+                "\"Progress\":{\"RegionId\":\"city\",\"TrackId\":\"city_loop\"," +
+                "\"TierIndex\":0,\"Stage\":1,\"Blueprints\":[]," +
+                "\"BlueprintFragments\":[],\"RivalsDefeated\":[\"akira\"]}}";
+
+            File.WriteAllText(SaveManager.SavePath, v2);
+
+            SaveData loaded = SaveManager.Load();
+
+            Assert.IsNotNull(loaded, "O save v2 tem de carregar.");
+            Assert.AreEqual(SaveData.CurrentVersion, loaded.Version, "A versao tem de ser migrada.");
+            Assert.AreEqual(900L, loaded.Cash, "Migrar nao pode perder o que ja existia.");
+
+            Assert.IsNotNull(loaded.Progress.Rivals, "A contagem por rival precisa EXISTIR.");
+            Assert.IsNotNull(loaded.Progress.CarBlueprints, "A lista de plantas de carro precisa EXISTIR.");
+
+            Assert.AreEqual(1, loaded.Progress.Rivals.Count, "O rival ja derrotado tem de sobreviver.");
+            Assert.AreEqual("akira", loaded.Progress.Rivals[0].Id);
+            Assert.AreEqual(1, loaded.Progress.Rivals[0].Defeats,
+                "Um id na lista antiga vale uma derrota - nem zero, nem tres.");
+        }
+
+        /// <summary>Um save v2 que nunca encontrou rival nao pode ganhar uma derrota de graca.</summary>
+        [Test]
+        public void SaveV2_MigratesToV3_WithoutInventingDefeats()
+        {
+            SaveManager.DeleteAll();
+
+            const string v2 =
+                "{\"Version\":2,\"Cash\":10,\"Progress\":{\"RegionId\":\"city\"," +
+                "\"TrackId\":\"city_loop\",\"Blueprints\":[],\"BlueprintFragments\":[]}}";
+
+            File.WriteAllText(SaveManager.SavePath, v2);
+
+            SaveData loaded = SaveManager.Load();
+
+            Assert.IsNotNull(loaded.Progress.Rivals);
+            Assert.AreEqual(0, loaded.Progress.Rivals.Count);
+            Assert.AreEqual(0, loaded.Progress.CarBlueprints.Count);
+        }
+
         private static SaveData SampleSave()
         {
             var save = new SaveData

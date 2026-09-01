@@ -159,6 +159,39 @@ namespace FramedDrift.Core
                 data.Version = 2;
             }
 
+            if (data.Version < 3)
+            {
+                // v3 acrescentou a CONTAGEM por rival (GDD 13.1) e as plantas de carro.
+                if (data.Progress != null)
+                {
+                    if (data.Progress.Rivals == null)
+                        data.Progress.Rivals = new List<SavedRivalRecord>();
+                    if (data.Progress.CarBlueprints == null)
+                        data.Progress.CarBlueprints = new List<string>();
+                    if (data.Progress.RivalsDefeated == null)
+                        data.Progress.RivalsDefeated = new List<string>();
+
+                    // Um save v2 so sabia DIZER que derrotou, nao quantas vezes. Voltar
+                    // valendo zero apagaria corridas que o jogador ja ganhou, e chutar
+                    // tres entregaria de graca a planta de carro que ele nao conquistou.
+                    // Uma derrota por id e a unica leitura que nao inventa nem apaga.
+                    foreach (string id in data.Progress.RivalsDefeated)
+                    {
+                        bool known = false;
+                        foreach (SavedRivalRecord r in data.Progress.Rivals)
+                            if (r.Id == id) known = true;
+
+                        if (!known)
+                            data.Progress.Rivals.Add(new SavedRivalRecord
+                            {
+                                Id = id, Encounters = 1, Defeats = 1,
+                            });
+                    }
+                }
+
+                data.Version = 3;
+            }
+
             data.Version = SaveData.CurrentVersion;
         }
 

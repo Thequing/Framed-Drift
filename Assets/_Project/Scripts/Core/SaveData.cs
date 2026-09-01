@@ -97,6 +97,20 @@ namespace FramedDrift.Core
         public int StopAfterConsecutiveFails = 3;
     }
 
+    /// <summary>
+    /// Quantas vezes o jogador encontrou e derrotou um rival. GDD 13.1.
+    ///
+    /// A CONTAGEM e o campo que faltava: "derrotar o mesmo rival tres vezes desbloqueia
+    /// seu carro" nao cabe numa lista de ids, e era isso que RivalsDefeated era.
+    /// </summary>
+    [Serializable]
+    public class SavedRivalRecord
+    {
+        public string Id;
+        public int Encounters;
+        public int Defeats;
+    }
+
     /// <summary>Progressao. GDD 14.</summary>
     [Serializable]
     public class SavedProgress
@@ -122,7 +136,26 @@ namespace FramedDrift.Core
         /// </summary>
         public List<SavedBlueprint> BlueprintFragments = new List<SavedBlueprint>();
 
+        /// <summary>
+        /// Rivais ja derrotados ao menos uma vez.
+        ///
+        /// Continua existindo, e nao e redundante com <see cref="Rivals"/>: e esta lista
+        /// que `UnlockRule.RivalDefeatedId` le (GDD 8.2), e a pergunta que ela responde -
+        /// "ja derrotou?" - e diferente de "quantas vezes".
+        /// </summary>
         public List<string> RivalsDefeated = new List<string>();
+
+        /// <summary>Encontros e derrotas por rival. GDD 13.1.</summary>
+        public List<SavedRivalRecord> Rivals = new List<SavedRivalRecord>();
+
+        /// <summary>
+        /// Plantas de CARRO, de "derrotar tres vezes desbloqueia seu carro" (GDD 13.1).
+        ///
+        /// Lista separada das plantas de peca de proposito: a bancada itera as de peca
+        /// para montar o catalogo de craft, e um id de carro no meio delas viraria uma
+        /// peca inexistente na tela da garagem.
+        /// </summary>
+        public List<string> CarBlueprints = new List<string>();
         public List<string> Achievements = new List<string>();
 
         /// <summary>Degraus da escada de automacao ja comprados. GDD 16.1.</summary>
@@ -164,7 +197,7 @@ namespace FramedDrift.Core
     public class SaveData
     {
         /// <summary>Suba junto com toda mudanca de formato e escreva a migracao.</summary>
-        public const int CurrentVersion = 2;
+        public const int CurrentVersion = 3;
 
         public int Version = CurrentVersion;
         public string LastTimestampUtc;

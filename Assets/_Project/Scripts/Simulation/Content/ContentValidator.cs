@@ -112,6 +112,30 @@ namespace FramedDrift.Simulation.Content
                     errors.Add("Rival " + r.Id + " usa o carro inexistente " + r.CarId + ".");
                 if (!string.IsNullOrEmpty(r.SignaturePartId) && !db.Parts.ContainsKey(r.SignaturePartId))
                     errors.Add("Rival " + r.Id + " dropa a peca inexistente " + r.SignaturePartId + ".");
+
+                if (r.BuildPartIds != null)
+                    foreach (string id in r.BuildPartIds)
+                        if (!db.Parts.ContainsKey(id))
+                            errors.Add("Rival " + r.Id + " monta a peca inexistente " + id + ".");
+
+                if (string.IsNullOrEmpty(r.SignaturePartId) || !db.Parts.ContainsKey(r.SignaturePartId))
+                    continue;
+
+                PartDef sig = db.Parts[r.SignaturePartId];
+
+                // A assinatura e do tier do dono. Uma peca acima disso entregaria numa
+                // unica derrota o que a escada da secao 14.2 raciona em horas.
+                if ((int)sig.Tier != r.TierIndex)
+                    errors.Add("Rival " + r.Id + " e tier " + (TierRank)r.TierIndex + " mas dropa "
+                               + sig.Id + ", que e tier " + sig.Tier + " (GDD 13.1).");
+
+                // A assinatura e SO do rival. Enquanto ela caisse do loot da regiao,
+                // derrotar o dono era o caminho mais lento para a mesma peca.
+                foreach (RegionDef region in db.RegionList)
+                    foreach (string id in region.PartPool)
+                        if (id == r.SignaturePartId)
+                            errors.Add("A regiao " + region.Id + " dropa " + id
+                                       + ", que e assinatura de " + r.Id + " (GDD 13.1).");
             }
 
             foreach (RegionDef r in db.RegionList)

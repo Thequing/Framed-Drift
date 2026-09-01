@@ -1,24 +1,133 @@
-// Rivais. GDD 0.2 secao 13.1. MVP: um (secao 22.1).
+// Rivais. GDD 0.2 secao 13.1.
 //
 // Rivais sao carros REAIS com build real, resolvidos pelo MESMO solucionador. E isso que
 // torna a build deles legivel, contra-atacavel e, quando derrotados, dropavel: eles
 // largam a peca que estavam usando.
 //
-// Cada rival ensina uma licao. AKIRA ensina a tensao central da secao 3.5: ele vence a
-// corrida e perde no score, e o jogador precisa ver isso lado a lado na tela de resultado.
+// UM POR TIER (GDD 14.2: "subir de tier muda a natureza - novos rivais"). Sem isso, C e
+// B - que juntos sao horas de jogo - passariam sem que a feature existisse.
+//
+// A DERROTA SE MEDE EM DRIFT SCORE, nunca em posicao (D-03). E o que torna a licao do
+// AKIRA ensinavel em vez de contraditoria: ele cruza a linha na frente e perde.
+//
+// "build" e a build DELE, peca por peca, do catalogo do tier dele. E conteudo e nao um
+// numero porque a 13.1 exige que a build do rival seja legivel e contra-atacavel: o
+// jogador precisa poder olhar o que ele monta e responder com a propria build. Um bonus
+// opaco nao se contra-ataca. Slot nao listado fica com a peca de serie.
+//
+// statBonus e o PILOTO, nao o carro: o pouco que sobra depois que a build explica o
+// resto. Enquanto a build era de serie, o statBonus carregava o rival inteiro e um rival
+// de tier S corria com motor de fabrica - vitoria de graca, medida em 0% de derrotas.
+//
+// Os numeros aqui sao calibrados por medicao (RivalTests.TodoRivalEUmaBrigaNoTierDele),
+// nao escolhidos a olho.
 {
   "rivals": [
     {
+      // Tier D. A licao central da secao 3.5, e a primeira coisa que o jogo ensina sobre
+      // o que ele mede: vencer nao e a moeda. Potencia alta, angulo NEGATIVO - ele corre
+      // rapido e reto, e o placar cobra por isso.
       "id": "akira",
       "name": "AKIRA",
       "car": "kanto_ae",
       "style": "Aggressive",
       "tierIndex": 0,
-      "signaturePart": "dif_lsd2way",
+      "signaturePart": "dif_sig_akira",
       "lesson": "Vencer nao e tudo: ele chega na frente e perde no Drift Score.",
+      // Build quase de fabrica: ele e o primeiro rival da primeira hora (GDD 22.3) e
+      // corre contra um jogador que ainda nao trocou nada. A vantagem dele e o piloto.
+      "build": ["eng_street", "trn_short", "brk_sport"],
       "statBonus": {
-        "Power": 45, "Grip": 8, "Braking": 10, "Steering": 6,
-        "Initiation": 6, "Angle": -6, "DriftControl": 4
+        "Power": 16, "Grip": 12, "Braking": 10, "Steering": 2,
+        "Initiation": -12, "Angle": -22, "DriftControl": -22
+      }
+    },
+
+    {
+      // Tier C. Ken leva a mesma licao ao limite - top speed puro. Onde AKIRA e rapido,
+      // Ken e rapido DEMAIS: o angulo negativo maior e o DriftControl negativo fazem dele
+      // um carro que ganha quase toda largada e quase nunca o placar.
+      "id": "ken",
+      "name": "KEN",
+      "car": "brute_v8",
+      "style": "Aggressive",
+      "tierIndex": 1,
+      "signaturePart": "eng_sig_ken",
+      // Diferencial de RUA num tier em que o jogador ja monta o dif_clutch: e a build
+      // dizendo em voz alta que ele nao esta tentando pontuar.
+      "lesson": "Top speed puro: ele ganha a corrida e perde no score.",
+      "build": ["tur_twin", "trn_dogbox", "dif_street", "sus_adjustable",
+                "tir_semislick", "brk_slotted", "aer_widebody"],
+      "statBonus": {
+        "Power": 130, "Grip": 26, "Braking": 22, "Steering": 20, "Stability": 16,
+        "Initiation": 10, "Angle": -8, "DriftControl": 8, "Transition": 12
+      }
+    },
+
+    {
+      // Tier B. Mika e a resposta: ela pontua. Transition e DriftControl altos com
+      // potencia contida - a primeira vez que o jogador encontra alguem que ganha do
+      // jeito que ELE deveria estar tentando ganhar.
+      "id": "mika",
+      "name": "MIKA",
+      "car": "kanto_ae",
+      "style": "Balanced",
+      "tierIndex": 2,
+      "signaturePart": "trn_sig_mika",
+      "lesson": "Transition e DriftControl importam - ela pontua onde Ken so corre.",
+      "build": ["eng_stroker", "tur_bigframe", "dif_comp", "sus_pillowball",
+                "tir_racing", "brk_bigbrake", "aer_carbon"],
+      "statBonus": {
+        "Grip": 10, "Braking": 8, "Steering": 14, "Stability": 12,
+        "Initiation": 10, "DriftControl": 26, "Transition": 22
+      }
+    },
+
+    {
+      // Tier A. Ryu inverte a licao do Ken: angulo extremo, e o preco esta no tempo de
+      // volta. Ele costuma PERDER a corrida e ganhar o placar - o espelho exato do AKIRA,
+      // quatro tiers depois, para o jogador que aprendeu a ler a diferenca.
+      "id": "ryu",
+      "name": "RYU",
+      "car": "kanto_ae",
+      "style": "Aggressive",
+      "tierIndex": 3,
+      "signaturePart": "dif_sig_ryu",
+      // Pneu de drift num tier em que o racing e mais rapido: perfil e escolha, nao
+      // nivel (GDD 9.3), e a escolha dele custa tempo de volta de proposito.
+      //
+      // O Grip alto do statBonus paga por essa escolha e nao a contradiz. No tier A
+      // TODAS as stats de drift dele ja batem no teto de 100 (StatOps), entao "angulo
+      // extremo" nao se expressa mais em numero nenhum - o que sobra vivo do pneu de
+      // drift e so o agravo de agarre. Sem devolver agarre por fora, Ryu nao era o
+      // especialista de angulo: era um tier A pior que o jogador, derrotado em 91%
+      // das corridas. O numero foi medido, nao escolhido (Sweep, faixa 34-100).
+      "lesson": "Angulo extremo custa velocidade: ele perde a corrida e ganha no score.",
+      "build": ["eng_billet", "tur_compound", "trn_dct", "sus_multilink",
+                "tir_drift_comp", "brk_carbon", "aer_active"],
+      "statBonus": {
+        "Power": 150, "Grip": 70, "Braking": 10, "Steering": 22, "Stability": -14,
+        "Initiation": 48, "Angle": 62, "DriftControl": 44, "Transition": 28
+      }
+    },
+
+    {
+      // Tier S. Zero e a secao 12.4 como pessoa: tudo alto, Reliability e Cooling no
+      // chao. As vezes ele se destroi sozinho, e isso NAO e um caso especial no codigo -
+      // sai de pFail_seg (12.3) sobre a build dele, resolvido pelo mesmo solucionador.
+      "id": "zero",
+      "name": "ZERO",
+      "car": "brute_v8",
+      "style": "Reckless",
+      "tierIndex": 4,
+      "signaturePart": "aer_sig_zero",
+      "lesson": "Glass cannon: quando termina, ganha de todo mundo. As vezes nao termina.",
+      "build": ["eng_race", "tur_antilag", "trn_straightcut", "dif_active",
+                "sus_damper", "tir_slick", "brk_race"],
+      "statBonus": {
+        "Grip": 12, "Braking": 12, "Steering": 20, "Stability": -20,
+        "Initiation": 26, "Angle": 30, "DriftControl": 20, "Transition": 18,
+        "Reliability": -16, "Cooling": -18
       }
     }
   ]

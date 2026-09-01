@@ -50,6 +50,7 @@ namespace FramedDrift.Bootstrap
             var map = hudRoot.AddComponent<MapUI>();
             var automation = hudRoot.AddComponent<AutomationUI>();
             var returnScreen = hudRoot.AddComponent<ReturnUI>();
+            var rivalUi = hudRoot.AddComponent<RivalUI>();
             var hud = hudRoot.AddComponent<GameHud>();
             var taskbar = hudRoot.AddComponent<TaskbarUI>();
             var windowMode = hudRoot.AddComponent<WindowModeController>();

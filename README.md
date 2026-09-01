@@ -134,11 +134,11 @@ para o porque de JSON em vez de ScriptableObject.
 | `tracks.json` | 11 pistas: 3 D + 2 C + 2 B + 2 A + 2 S |
 | `regions.json` | Cidade: pool de modulos, clima, pool de pecas |
 | `cars.json` | Kite 130, Kanto AE, Brute V8 |
-| `parts.json` | 56 bases: 20 D + 8 C + 8 B + 8 A + 8 S + 4 assinaturas de rival |
+| `parts.json` | 57 bases: 52 de catalogo (20 D + 8 C + 8 B + 8 A + 8 S) + 5 assinaturas de rival |
 | `affixes.json` | 12 afixos (9 beneficios + 3 trade-offs) |
 | `passives.json` | 8 passivas condicionais (Rare+) |
 | `sets.json` | Street King e Drift Demon |
-| `rivals.json` | AKIRA |
+| `rivals.json` | 5 rivais, um por tier: AKIRA (D), KEN (C), MIKA (B), RYU (A), ZERO (S) |
 
 Enums sao escritos por **nome**, nunca por indice, para que o conteudo sobreviva a uma
 reordenacao sem virar outro valor silenciosamente. O leitor aceita comentarios `//`.
@@ -156,7 +156,7 @@ Unity.exe -batchmode -runTests -projectPath . -testPlatform EditMode
 Unity.exe -batchmode -runTests -projectPath . -testPlatform PlayMode
 ```
 
-**94 EditMode + 6 PlayMode, todos passando.** Eles nao sao testes de fumaca: sao os
+**127 EditMode + 8 PlayMode, todos passando.** Eles nao sao testes de fumaca: sao os
 criterios de saida da GDD 21.2 escritos como asserts.
 
 ### Harness offline
@@ -183,6 +183,11 @@ relatorio de balanceamento completo) em segundos, sem abrir o editor.
 | 10.000 corridas | Fase 3: < 5 s | **0,06 s** |
 | Auto-equipar (200 corridas) | 16.3: < 60 ms | **1,2 ms** |
 | Pistas geradas validas | Fase 12: 200/200 | **200/200** |
+| AKIRA chega na frente | 3.5: a licao dele | **99,7% das corridas** |
+| ...e mesmo assim perde no score | 13.1: derrota e por score | **50,2%** |
+| RYU perde a corrida e ganha no placar | 13.1: o espelho do AKIRA | **12,0% na frente / 60,7%** |
+| ZERO se destroi sozinho | 13.1: glass cannon | **52,3% das corridas dele** |
+| Derrota de rival offline x online | D-02 / 21.2: +-8% | **dentro da faixa** |
 
 Alem desses, os testes cobrem: determinismo byte a byte por seed, isolamento dos fluxos
 de RNG, a garantia de que uma promocao **nunca** toca em fisica ou combo, que Bad nunca
@@ -208,9 +213,32 @@ recuperacao de backup.
 | 11 | Conteudo: regioes, horarios, clima | **parcial** - 1 regiao, 2 periodos, 3 climas; os 5 tiers de peca e de pista |
 | 12 | Gerador procedural | **feito** - 200/200 validas |
 | 13 | Automacao + frota | **feito** - frota sem execucao paralela ainda |
+| 13.1 | Rivais: encontro, duelo, derrota, planta de carro | **feito** - 5 rivais, um por tier, calibrados por medicao |
 | 14 | Prestigio, temporadas, Endless | **parcial** - prestigio e arvore de Fama existem; Endless nao |
 | 15 | Modo Taskbar | **esboco** (D-07: e Fase 15 de proposito) |
 | 16 | Cosmeticos, radio, conquistas, Steam | conquistas existem; o resto nao |
+
+### Rivais (GDD 13.1)
+
+Um rival e um carro REAL com build real, resolvido pelo **mesmo** `RaceSimulator` - com
+fluxo de RNG proprio, para que incluir um rival nao desloque nenhuma curva do jogador.
+Ele **ocupa** uma vaga do grid da 5.6 em vez de acrescentar uma.
+
+**Derrota se mede em Drift Score, nunca em posicao** (D-03). E o que torna a licao do
+AKIRA ensinavel: ele cruza a linha na frente em 99,7% das corridas e ainda assim perde o
+placar em metade delas.
+
+A build de cada um esta em `rivals.json`, peca por peca, porque a 13.1 exige que ela seja
+legivel e contra-atacavel - o jogador precisa poder olhar o que ele monta e responder.
+`statBonus` e so o piloto. Quando a build era de serie, um rival tier S corria com motor
+de fabrica e era derrotado em 100% das corridas.
+
+A assinatura de cada rival saiu do pool de loot da regiao: ela dropa quando o dono perde,
+e o validador recusa o conteudo se alguem devolve-la ao pool. Tres derrotas do mesmo rival
+entregam o carro dele como planta, que **dispensa a reputacao** que o carro exigia.
+
+Tudo isso acontece igual na ausencia (D-06), pela mesma amostragem da 17.2 e pelo mesmo
+`RivalSystem` - a taxa de derrota offline bate com a online dentro dos +-8%.
 
 ### O que falta, em ordem de importancia
 
@@ -224,7 +252,23 @@ recuperacao de backup.
 6. **Segunda regiao.** A escada de tier esta fechada e medida de D a S, mas toda ela
    acontece em `city`. O mapa e um grafo desde o inicio (`neighbors` ja lista
    `industrial` e `coast`) e nada preenche esses nos.
-7. **Planta de CARRO.** A da peca esta fechada; a GDD 13.1 promete outra coisa -
-   "derrotar o mesmo rival tres vezes desbloqueia seu carro como blueprint". Nada conta
-   quantas vezes um rival foi derrotado (`RivalsDefeated` e uma lista de ids, sem
-   contagem), e `UnlockRule.BlueprintId` continua sem ninguem que o preencha.
+7. **Eventos de corrida** (12.2) e **eventos raros** (13.2). O painel de automacao tem a
+   regra "aceitar eventos com risco <= MEDIO" desde a Fase 13 e nada gera evento nenhum -
+   nem os positivos (reta livre, publico, vacuo), nem os negativos (oleo, poca, policia).
+   A regra de rival, que estava no mesmo estado, passou a ser lida agora.
+8. **Audio.** Nao existe um `AudioSource` no projeto. A 19.5 pede trilha por regiao x
+   periodo, radio com estacoes e - o que importa para o jogador ausente - *stingers* de
+   peca rara, rival e recorde como notificacao periferica.
+9. **Prestigio e conquistas nao tem tela.** Os dois sistemas existem e sao instanciados
+   no `GameManager`; nada na UI chama nenhum dos dois, entao Reputacao 100 nao leva a
+   lugar nenhum.
+
+### Um achado de balanceamento, registrado aqui para nao se perder
+
+Calibrar os rivais expos uma consequencia do teto de 0-100 das stats (`StatOps`): no tier
+A e acima, jogador e rival chegam **os dois** em 100 de Angle, Initiation, DriftControl e
+Transition, e so Power, Weight e Aero continuam vivos. O efeito colateral e que
+`tir_drift_comp` vira estritamente pior que `tir_racing` la em cima - o bonus de angulo
+nao rende nada porque ja saturou, e o agravo de agarre roda inteiro. Isso contradiz a
+9.3 ("perfil e escolha, nao nivel") e nao e uma questao de rival: vale para a build do
+jogador tambem. Ficou fora do escopo desta entrega.

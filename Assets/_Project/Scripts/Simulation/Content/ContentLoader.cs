@@ -233,6 +233,9 @@ namespace FramedDrift.Simulation.Content
             b.SalvageItemLevelFactor = j["salvageItemLevelFactor"].AsFloat();
             b.BlueprintFragmentChance = j["blueprintFragmentChance"].AsFloat();
             b.BlueprintFragmentsPerBlueprint = j["blueprintFragmentsPerBlueprint"].AsInt();
+            b.RivalEncounterChance = j["rivalEncounterChance"].AsFloat();
+            b.RivalDefeatsForCarBlueprint = j["rivalDefeatsForCarBlueprint"].AsInt();
+            b.RivalDefeatFragments = j["rivalDefeatFragments"].AsInt();
             b.ReputationPerWin = j["reputationPerWin"].AsInt();
             b.ReputationPerPodium = j["reputationPerPodium"].AsInt();
 
@@ -593,6 +596,7 @@ namespace FramedDrift.Simulation.Content
                     Style = j["style"].AsEnum(DriftStyle.Balanced),
                     StatBonus = Stats(j["statBonus"]),
                     SignaturePartId = j["signaturePart"].AsString(null),
+                    BuildPartIds = j["build"].AsStringArray(),
                     LessonText = j["lesson"].AsString(),
                     TierIndex = j["tierIndex"].AsInt(),
                 };

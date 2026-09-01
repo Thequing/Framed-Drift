@@ -39,14 +39,22 @@ namespace FramedDrift.Tests.EditMode
             // inteiro - o contrato original esta preservado na primeira linha. As 16
             // seguintes sao a escada de tier (C e B), que o MVP nao previa porque nao
             // previa que `Progress.TierIndex` fosse subir. A 22.1 precisa ser atualizada.
+            //
+            // Assinatura de rival NAO conta como base do catalogo: nao se compra, nao cai
+            // no loot da regiao e so existe pela derrota do dono (GDD 13.1). A 22.1 ja a
+            // contabiliza na linha "Rivais", e conta-la aqui seria contar duas vezes.
             Assert.AreEqual(20, CountAtTier(db, TierRank.D), "GDD 22.1: 20 bases no tier D.");
             Assert.AreEqual(8, CountAtTier(db, TierRank.C), "Uma base tier C por slot.");
             Assert.AreEqual(8, CountAtTier(db, TierRank.B), "Uma base tier B por slot.");
 
-            // A e S contam 8 do tier + 2 assinaturas de rival cada (GDD 13.1).
-            Assert.AreEqual(10, CountAtTier(db, TierRank.A), "8 bases tier A + 2 assinaturas.");
-            Assert.AreEqual(10, CountAtTier(db, TierRank.S), "8 bases tier S + 2 assinaturas.");
-            Assert.AreEqual(56, db.PartList.Count, "20 D + 8 C + 8 B + 10 A + 10 S.");
+            Assert.AreEqual(8, CountAtTier(db, TierRank.A), "Uma base tier A por slot.");
+            Assert.AreEqual(8, CountAtTier(db, TierRank.S), "Uma base tier S por slot.");
+
+            // 52 de catalogo + uma assinatura por rival. As assinaturas mudaram de tier
+            // quando cada rival ganhou o seu (GDD 13.1): a peca que dropa de um rival tem
+            // de ser do tier DELE, ou uma derrota no tier C entregaria uma peca tier A.
+            Assert.AreEqual(52 + db.RivalList.Count, db.PartList.Count,
+                "20 D + 8 C + 8 B + 8 A + 8 S de catalogo, mais uma assinatura por rival.");
             Assert.AreEqual(12, db.AffixList.Count, "GDD 22.1: o MVP tem 12 afixos.");
             Assert.AreEqual(6, db.Modules.Count, "GDD 22.1: o MVP tem 6 modulos.");
             // Mesma historia das pecas: as 3 pistas da GDD 22.1 continuam sendo o tier D
@@ -60,18 +68,38 @@ namespace FramedDrift.Tests.EditMode
             Assert.AreEqual(2, CountTracksAtTier(db, TierRank.S), "2 pistas no tier S.");
             Assert.AreEqual(11, db.TrackList.Count, "3 D + 2 C + 2 B + 2 A + 2 S.");
             Assert.AreEqual(1, db.RegionList.Count, "GDD 22.1: o MVP tem 1 regiao.");
-            Assert.AreEqual(1, db.RivalList.Count, "GDD 22.1: o MVP tem 1 rival.");
+            // A 22.1 fechava o MVP em 1 rival, e essa linha envelheceu junto com as de
+            // peca e pista: a 14.2 exige rivais NOVOS a cada tier, e sem um por tier a
+            // feature simplesmente nao existia em C, B, A e S.
+            Assert.AreEqual(5, db.RivalList.Count, "Um rival por tier, de D a S (GDD 13.1 / 14.2).");
             Assert.AreEqual(8, System.Enum.GetValues(typeof(PartSlot)).Length, "GDD 9.1: oito slots.");
             Assert.AreEqual(5, System.Enum.GetValues(typeof(Rarity)).Length,
                 "GDD 10.2: cinco raridades no lancamento. Prototype e Mythic ficam de fora.");
         }
 
+        /// <summary>
+        /// Bases do CATALOGO num tier: o que o jogador compra ou encontra.
+        ///
+        /// Assinatura de rival fica de fora - ela nao esta na loja nem no pool da regiao,
+        /// e a 22.1 ja a conta na linha "Rivais" (GDD 13.1).
+        /// </summary>
         private static int CountAtTier(ContentDatabase db, TierRank tier)
         {
             int n = 0;
             for (int i = 0; i < db.PartList.Count; i++)
-                if (db.PartList[i].Tier == tier) n++;
+            {
+                if (db.PartList[i].Tier != tier) continue;
+                if (IsRivalSignature(db, db.PartList[i].Id)) continue;
+                n++;
+            }
             return n;
+        }
+
+        private static bool IsRivalSignature(ContentDatabase db, string partId)
+        {
+            for (int i = 0; i < db.RivalList.Count; i++)
+                if (db.RivalList[i].SignaturePartId == partId) return true;
+            return false;
         }
 
         private static int CountTracksAtTier(ContentDatabase db, TierRank tier)

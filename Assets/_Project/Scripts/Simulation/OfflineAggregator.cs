@@ -53,6 +53,18 @@ namespace FramedDrift.Simulation
 
         /// <summary>Um partId por pedaco de planta juntado na ausencia. GDD 10.6.</summary>
         public List<string> BlueprintFragments = new List<string>();
+
+        // --- rivais na ausencia (GDD 13.1 / 13.2 / D-06) --------------------------
+
+        /// <summary>Quem apareceu. Null quando nenhum rival corre neste tier.</summary>
+        public string RivalId;
+        public string RivalDisplayName;
+
+        public int RivalEncounters;
+        public int RivalDefeats;
+
+        /// <summary>Uma assinatura por derrota - o mesmo drop do caminho online.</summary>
+        public List<string> RivalSignatureDrops = new List<string>();
         public List<OfflineLogEntry> Highlights = new List<OfflineLogEntry>();
 
         public int TotalDrops
@@ -115,11 +127,14 @@ namespace FramedDrift.Simulation
         private readonly BalanceSettings _balance;
         private readonly RaceResolver _resolver;
 
+        private readonly RivalResolver _rivals;
+
         public OfflineAggregator(ContentDatabase content, RaceResolver resolver)
         {
             _content = content;
             _balance = content.Balance;
             _resolver = resolver;
+            _rivals = new RivalResolver(content, resolver);
         }
 
         /// <summary>
@@ -181,11 +196,78 @@ namespace FramedDrift.Simulation
 
             RollDrops(report, rng, n, sample, prototype);
             RollBlueprintFragments(report, rng, n, prototype);
+            RollRivalEncounters(report, rng, n, prototype, seed);
 
             // Passo 5: aplica as regras de automacao sequencialmente sobre o resultado.
             ApplyRules(report, rules, currentDamage, perRace, sample);
 
             return report;
+        }
+
+        /// <summary>
+        /// Encontros de rival na ausencia (GDD 13.1 / 13.2 / D-06).
+        ///
+        /// Segue o metodo da 17.2 como todo o resto do offline: nao simula corrida a
+        /// corrida, amostra. Os encontros saem de uma binomial sobre N corridas, e as
+        /// derrotas de uma binomial sobre os encontros, com p medido por K duelos reais
+        /// contra o MESMO resolvedor que o caminho online usa - e por isso a taxa offline
+        /// nao pode divergir da online sem que o teste de paridade veja.
+        /// </summary>
+        private void RollRivalEncounters(OfflineReport report, DeterministicRng rng, int races,
+                                         RaceInstance prototype, ulong seed)
+        {
+            var b = _balance;
+            if (b.RivalEncounterChance <= 0f) return;
+
+            List<RivalDef> eligible = _rivals.EligibleFor(prototype.TierIndex);
+            if (eligible.Count == 0) return;
+
+            int encounters = rng.Binomial(races, b.RivalEncounterChance);
+            if (encounters <= 0) return;
+
+            RivalDef rival = eligible[rng.Range(0, eligible.Count)];
+
+            report.RivalId = rival.Id;
+            report.RivalDisplayName = rival.DisplayName;
+            report.RivalEncounters = encounters;
+
+            double winRate = MeasureWinRate(prototype, rival, seed);
+            report.RivalDefeats = rng.Binomial(encounters, winRate);
+
+            for (int i = 0; i < report.RivalDefeats; i++)
+                report.RivalSignatureDrops.Add(rival.SignaturePartId);
+
+            // Os PEDACOS da assinatura nao entram em BlueprintFragments, e a distincao
+            // nao e cosmetica: aquela lista mede o sorteio de planta do LOOT, e a
+            // paridade offline/online da secao 21.2 e medida contra ela. Misturar os
+            // pedacos de rival ali inflaria a taxa offline e faria o teste de paridade
+            // acusar uma divergencia que nao existe. Quem credita os pedacos de rival e
+            // o RivalSystem, pelo mesmo caminho que o online usa.
+
+            if (report.RivalDefeats > 0)
+                report.Highlights.Add(new OfflineLogEntry
+                {
+                    AtSeconds = report.OperatedSeconds * 0.5f,
+                    Text = "Rival " + rival.DisplayName + " derrotado " + report.RivalDefeats + "x",
+                });
+        }
+
+        /// <summary>Com que frequencia o jogador vence este rival NO SCORE. GDD 13.1 / D-03.</summary>
+        private double MeasureWinRate(RaceInstance prototype, RivalDef rival, ulong seed)
+        {
+            int k = _balance.OfflineSampleK < 1 ? 1 : _balance.OfflineSampleK;
+            ulong original = prototype.Seed;
+            int wins = 0;
+
+            for (int i = 0; i < k; i++)
+            {
+                prototype.Seed = seed + (ulong)i * 0xD1B54A32D192ED03UL;
+                RaceResult result = _resolver.ResolveComplete(prototype);
+                if (_rivals.Resolve(prototype, rival, result).PlayerWon) wins++;
+            }
+
+            prototype.Seed = original;
+            return wins / (double)k;
         }
 
         // --- passo 3: K corridas de amostra --------------------------------------------

@@ -350,12 +350,18 @@ namespace FramedDrift.Tests.EditMode
         }
 
         /// <summary>
-        /// As assinaturas de rival (GDD 13.1) sao so-bancada: nao tem preco, entao a
-        /// planta e o UNICO caminho ate elas. Se o sorteio nunca as escolhesse, quatro
-        /// pecas ficariam no JSON sem jamais chegar a um jogador.
+        /// As assinaturas de rival (GDD 13.1) NAO saem do sorteio de planta.
+        ///
+        /// Este teste ja existiu com o sinal invertido: enquanto a assinatura morava no
+        /// pool da regiao, ele exigia que ela CAISSE, senao quatro pecas ficariam no JSON
+        /// sem jamais chegar a um jogador. O caminho agora e outro - a peca dropa quando
+        /// o dono perde - e a exigencia se inverte junto: se ela voltasse a cair do loot,
+        /// derrotar o rival viraria o caminho mais lento para a mesma peca.
+        ///
+        /// Quem garante que ela continua alcancavel e RivalProgressionTests.
         /// </summary>
         [Test]
-        public void ACorridaDeTierAltoSorteiaPlantaDeAssinatura()
+        public void APlantaDeAssinaturaNaoSaiDoSorteioDeLoot()
         {
             TrackDef top = null;
             for (int i = 0; i < _content.TrackList.Count; i++)
@@ -367,18 +373,22 @@ namespace FramedDrift.Tests.EditMode
                 "kite_130", top.Id, TestWorld.Shared.FactoryBuild(), TuningSetup.Neutral,
                 DriftStyle.Balanced, TimeOfDay.Day, Weather.Clear, 1UL);
 
-            bool sawSignature = false;
-            for (ulong seed = 1UL; seed <= 3000UL && !sawSignature; seed++)
+            for (ulong seed = 1UL; seed <= 3000UL; seed++)
             {
                 race.Seed = seed;
                 string[] ids = TestWorld.Shared.Resolver.ResolveComplete(race).Rewards.BlueprintIds;
 
                 for (int i = 0; i < ids.Length; i++)
-                    if (ids[i].Contains("_sig_")) sawSignature = true;
+                    Assert.IsFalse(IsRivalSignature(ids[i]),
+                        "O sorteio de planta entregou " + ids[i] + ", que e assinatura de rival.");
             }
+        }
 
-            Assert.IsTrue(sawSignature,
-                "Nenhuma planta de assinatura em 3000 corridas tier S - elas seriam inalcancaveis.");
+        private bool IsRivalSignature(string partId)
+        {
+            for (int i = 0; i < _content.RivalList.Count; i++)
+                if (_content.RivalList[i].SignaturePartId == partId) return true;
+            return false;
         }
 
         private int CountFragmentsOverRaces(int races)
