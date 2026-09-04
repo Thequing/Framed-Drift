@@ -41,6 +41,13 @@ namespace FramedDrift.Racing
 
         public TrackPath Path { get; private set; }
 
+        /// <summary>
+        /// Altura do topo do asfalto acima do tracado. O trecho e um cubo centrado no
+        /// ponto do <see cref="TrackPath"/>, entao a superficie fica meia espessura acima
+        /// - e e nela que um modelo com pivo no chao assenta.
+        /// </summary>
+        public float SurfaceOffset { get { return _roadThickness * 0.5f; } }
+
         public void Assemble(Segment[] segments)
         {
             Clear();

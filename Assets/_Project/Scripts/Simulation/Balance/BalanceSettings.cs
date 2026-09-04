@@ -303,6 +303,14 @@ namespace FramedDrift.Simulation.Balance
         public float CameraFovPerAngle;         // 0.10
         public float CameraDamping;             // 6.0
 
+        /// <summary>Tranco de camera por km/h, com teto. Sensacao de velocidade sem baixar a camera.</summary>
+        public float CameraShakePerSpeed;       // 0.0007
+        public float CameraShakeMax;            // 0.07
+
+        /// <summary>Graus de roll por grau/s de curvatura da pista, com teto.</summary>
+        public float CameraRollPerTurnRate;     // 0.15
+        public float CameraRollMax;             // 6.0
+
         // --- desempenho (20.4) ----------------------------------------------------
         public float SimRaceBudgetMs;           // 0.3
         public int AutoEquipSampleRaces;        // 200

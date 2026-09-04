@@ -10,7 +10,9 @@
         "FramedDrift.Automation",
         "FramedDrift.App",
         "FramedDrift.Racing",
-        "FramedDrift.UI"
+        "FramedDrift.UI",
+        "Unity.RenderPipelines.Universal.Runtime",
+        "Unity.RenderPipelines.Core.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

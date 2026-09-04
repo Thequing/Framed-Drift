@@ -8,6 +8,7 @@ using FramedDrift.Racing;
 using FramedDrift.UI;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 namespace FramedDrift.Bootstrap
 {
@@ -36,6 +37,7 @@ namespace FramedDrift.Bootstrap
             var track = CreateChild<TrackAssembler>("Track");
             var visualizer = CreateChild<RaceVisualizer>("RaceVisualizer");
             var smoke = CreateChild<DriftSmokeSystem>("DriftSmoke");
+            var streaks = CreateChild<SpeedStreaks>("SpeedStreaks");
             var perfectEntry = CreateChild<PerfectEntryController>("PerfectEntry");
             var collectibles = CreateChild<CollectibleSpawner>("Collectibles");
 
@@ -63,8 +65,10 @@ namespace FramedDrift.Bootstrap
             Wire.Set(visualizer, "_track", track);
             Wire.Set(visualizer, "_camera", rig);
             Wire.Set(visualizer, "_smoke", smoke);
+            Wire.Set(visualizer, "_streaks", streaks);
 
             Wire.Set(smoke, "_visualizer", visualizer);
+            Wire.Set(streaks, "_visualizer", visualizer);
             Wire.Set(collectibles, "_visualizer", visualizer);
             if (rig != null) Wire.Set(rig, "_visualizer", visualizer);
 
@@ -83,6 +87,49 @@ namespace FramedDrift.Bootstrap
         {
             if (GameManager.Instance != null) return;
             gameObject.AddComponent<GameManager>();
+        }
+
+        /// <summary>
+        /// Pos-processamento. A 19.1 pede estetica PS1/PS2 TRATADA com pos moderno, e o
+        /// perfil e montado em codigo pelo mesmo motivo que a cena e: um .asset de Volume
+        /// seria mais um arquivo serializado para quebrar em merge sem explicar nada.
+        ///
+        /// Motion blur e o efeito de velocidade que nao custa altura de camera - ele age
+        /// nas BORDAS da tela, que e onde a camera elevada da 19.2 perde a sensacao de
+        /// velocidade. Bloom existe para a paleta neon; nada aqui e realismo.
+        /// </summary>
+        private void CreatePostProcessing(Camera camera)
+        {
+            UniversalAdditionalCameraData data = camera.GetUniversalAdditionalCameraData();
+            data.renderPostProcessing = true;
+            data.antialiasing = AntialiasingMode.FastApproximateAntialiasing;
+
+            var profile = ScriptableObject.CreateInstance<VolumeProfile>();
+
+            var blur = profile.Add<MotionBlur>();
+            blur.mode.Override(MotionBlurMode.CameraOnly);
+            blur.quality.Override(MotionBlurQuality.Medium);
+            blur.intensity.Override(0.35f);
+
+            var bloom = profile.Add<Bloom>();
+            bloom.threshold.Override(0.9f);
+            bloom.intensity.Override(0.7f);
+            bloom.scatter.Override(0.6f);
+
+            var vignette = profile.Add<Vignette>();
+            vignette.intensity.Override(0.26f);
+            vignette.smoothness.Override(0.4f);
+
+            var tonemapping = profile.Add<Tonemapping>();
+            tonemapping.mode.Override(TonemappingMode.Neutral);
+
+            var go = new GameObject("PostProcessing");
+            go.transform.SetParent(transform, false);
+
+            var volume = go.AddComponent<Volume>();
+            volume.isGlobal = true;
+            volume.priority = 1f;
+            volume.sharedProfile = profile;
         }
 
         private T CreateChild<T>(string name) where T : Component
@@ -107,6 +154,8 @@ namespace FramedDrift.Bootstrap
             camera.farClipPlane = 900f;
 
             go.AddComponent<AudioListener>();
+
+            CreatePostProcessing(camera);
 
             // Sem PBR, sem reflexos, sem sombras suaves (GDD 19.1). A linguagem visual e
             // chapada; sombra dinamica aqui so custaria frame sem mudar a leitura.

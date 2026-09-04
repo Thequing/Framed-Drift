@@ -284,6 +284,13 @@ namespace FramedDrift.Simulation.Content
             b.CameraFovPerAngle = j["cameraFovPerAngle"].AsFloat();
             b.CameraDamping = j["cameraDamping"].AsFloat();
 
+            // Com fallback: um balance.json antigo perde o efeito, nao ganha um zero
+            // silencioso que faz a camera parecer quebrada.
+            b.CameraShakePerSpeed = j["cameraShakePerSpeed"].AsFloat(0.0007f);
+            b.CameraShakeMax = j["cameraShakeMax"].AsFloat(0.07f);
+            b.CameraRollPerTurnRate = j["cameraRollPerTurnRate"].AsFloat(0.15f);
+            b.CameraRollMax = j["cameraRollMax"].AsFloat(6f);
+
             b.SimRaceBudgetMs = j["simRaceBudgetMs"].AsFloat();
             b.AutoEquipSampleRaces = j["autoEquipSampleRaces"].AsInt();
 

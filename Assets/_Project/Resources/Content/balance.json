@@ -270,15 +270,24 @@
   // Alvo: 30-40% mais alta que a linha de base do Horizon Chase, com o angulo de arfagem
   // correspondente. E a decisao que faz o yaw ficar legivel - calibrar na Fase 1.
   "cameraHeightMultiplier": 1.35,
-  "cameraBaseHeight": 3.2,
-  "cameraBaseDistance": 8.0,
+  "cameraBaseHeight": 2.1,
+  "cameraBaseDistance": 4.6,
   "cameraPitchDegrees": 14,
-  "cameraSpeedPullback": 0.02,
+  "cameraSpeedPullback": 0.006,
   "cameraDriftLateralOffset": 0.05,
-  "cameraFovBase": 60,
-  "cameraFovPerSpeed": 0.06,
+  "cameraFovBase": 58,
+  "cameraFovPerSpeed": 0.11,
   "cameraFovPerAngle": 0.10,
   "cameraDamping": 6.0,
+
+  // Tranco e inclinacao, os dois so em CURVA - em reta a velocidade e vendida pelos
+  // riscos e pelo motion blur. O tranco ainda escala com a velocidade dentro da curva.
+  // Nenhum dos dois pode baixar a camera: a altura da 19.2 e o que mantem o yaw
+  // legivel (R11).
+  "cameraShakePerSpeed": 0.0007,
+  "cameraShakeMax": 0.07,
+  "cameraRollPerTurnRate": 0.15,
+  "cameraRollMax": 6.0,
 
   // --- 20.4 desempenho -------------------------------------------------------------------------------------
   "simRaceBudgetMs": 0.3,
