@@ -40,6 +40,7 @@ namespace FramedDrift.Bootstrap
             var streaks = CreateChild<SpeedStreaks>("SpeedStreaks");
             var perfectEntry = CreateChild<PerfectEntryController>("PerfectEntry");
             var collectibles = CreateChild<CollectibleSpawner>("Collectibles");
+            var backdrop = CreateChild<Backdrop>("Backdrop");
 
             Camera camera = _createCamera ? CreateCamera() : Camera.main;
             CameraRig rig = camera != null ? camera.gameObject.AddComponent<CameraRig>() : null;
@@ -71,6 +72,7 @@ namespace FramedDrift.Bootstrap
             Wire.Set(streaks, "_visualizer", visualizer);
             Wire.Set(collectibles, "_visualizer", visualizer);
             if (rig != null) Wire.Set(rig, "_visualizer", visualizer);
+            if (camera != null) Wire.Set(backdrop, "_follow", camera.transform);
 
             Wire.Set(raceUi, "_perfectEntry", perfectEntry);
 
