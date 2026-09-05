@@ -56,11 +56,14 @@ namespace FramedDrift.Racing
         private float _groundOffset;
 
         /// <summary>
-        /// Quanto tempo antes do fim de uma reta o efeito de curva ja liga, quando o
-        /// proximo trecho e curva. Em segundos, e nao em fracao do trecho, porque uma
-        /// reta longa e uma reta curta pedem a MESMA antecipacao.
+        /// Giro da PISTA, em graus por segundo, abaixo do qual nao ha curva nenhuma. Uma
+        /// reta da exatamente zero (o <see cref="TrackPath"/> usa curvatura 0 nela), entao
+        /// esta margem so absorve ruido de amostragem.
         /// </summary>
-        private const float CornerBridgeSeconds = 0.8f;
+        private const float CornerMinTurnRate = 4f;
+
+        /// <summary>Giro em que o sinal satura. ~26 graus/s e uma curva media do MVP a 100 km/h.</summary>
+        private const float CornerFullTurnRate = 26f;
 
         private const float CornerAttack = 12f;
         private const float CornerRelease = 3f;
@@ -69,18 +72,31 @@ namespace FramedDrift.Racing
         private RaceInstance _race;
         private float _visualYaw;
         private float _corner;
+        private float _lastHeading;
+        private bool _hasHeading;
 
         /// <summary>Angulo de drift atual em graus. A camera e a fumaca leem daqui.</summary>
         public float CurrentYaw { get { return _visualYaw; } }
 
         /// <summary>
-        /// 0 em reta, 1 em curva, com transicao amortecida. A camera pendura tranco e
-        /// abertura de FOV aqui.
+        /// 0 em reta, 1 em curva fechada, com transicao amortecida. A camera pendura
+        /// tranco e abertura de FOV aqui.
         ///
-        /// Isto NAO sai do yaw. O yaw tem forma de seno dentro de cada segmento (volta a
-        /// zero em toda fronteira), entao efeitos pendurados nele piscam a cada curva de
-        /// uma sequencia. Este sinal sai do TIPO do segmento, que e constante ao longo
-        /// dele, e ainda atravessa a reta curta entre duas curvas.
+        /// Sai da VELOCIDADE DE GIRO DA PISTA - quanto o heading do tracado muda por
+        /// segundo - e nao do tipo do segmento. A diferenca importa nas duas pontas:
+        ///
+        /// - <b>comeco.</b> O sinal por tipo de segmento ligava ANTES da curva existir,
+        ///   de proposito, com uma antecipacao de 0,8 s. Na tela isso lia como a camera
+        ///   reagindo a uma curva que o carro ainda nao tinha comecado a fazer. O giro
+        ///   real e zero na reta e so cresce quando o carro entra na curva, entao o
+        ///   efeito comeca exatamente junto com o carro.
+        /// - <b>forca.</b> Curvatura x velocidade e o que o corpo sente numa curva, entao
+        ///   uma curva fechada a 180 km/h agora pesa mais que uma aberta a 90.
+        ///
+        /// Continua nao saindo do yaw: o yaw tem forma de seno dentro de cada segmento e
+        /// volta a zero em toda fronteira, entao efeitos pendurados nele piscariam numa
+        /// sequencia de curvas. O giro da pista e constante ao longo do trecho, e a
+        /// soltura lenta (<see cref="CornerRelease"/>) cobre a reta curta entre duas.
         /// </summary>
         public float CurrentCorner { get { return _corner; } }
 
@@ -112,6 +128,7 @@ namespace FramedDrift.Racing
             _race = evt.Race;
             _result = evt.Result;
             _corner = 0f;
+            _hasHeading = false;
 
             if (_track != null) _track.Assemble(_race.Track);
 
@@ -135,22 +152,34 @@ namespace FramedDrift.Racing
                 return;
             }
 
-            SampleTimeline(game.PlaybackTime, out float distance, out float yaw, out float speed,
-                           out float corner);
+            SampleTimeline(game.PlaybackTime, out float distance, out float yaw, out float speed);
 
             Vector3 position = _track.Path.PositionAt(distance);
             float heading = _track.Path.HeadingDegreesAt(distance);
 
+            float dt = Time.deltaTime;
+
             // Amortece o yaw: o valor do simulador e por segmento, e um corte seco de 0
             // para 40 graus na fronteira leria como teleporte. Nada de corte brusco
             // (GDD 19.2) - toda transicao e amortecida.
-            _visualYaw = Mathf.Lerp(_visualYaw, yaw, 1f - Mathf.Exp(-8f * Time.deltaTime));
+            _visualYaw = Mathf.Lerp(_visualYaw, yaw, 1f - Mathf.Exp(-8f * dt));
+
+            // Quanto a PISTA girou neste frame. No primeiro frame de uma corrida nao ha
+            // com o que comparar, e um delta contra lixo daria um pico de curva na
+            // largada - que e justamente uma reta.
+            float turnRate = _hasHeading && dt > 0.0001f
+                ? Mathf.Abs(Mathf.DeltaAngle(_lastHeading, heading)) / dt
+                : 0f;
+            _lastHeading = heading;
+            _hasHeading = true;
+
+            float corner = Mathf.InverseLerp(CornerMinTurnRate, CornerFullTurnRate, turnRate);
 
             // Sobe rapido e desce devagar: entrar na curva e um evento, sair dela e um
             // alivio. A soltura lenta tambem cobre qualquer buraco de um frame entre
             // dois trechos de curva.
             float rate = corner > _corner ? CornerAttack : CornerRelease;
-            _corner = Mathf.Lerp(_corner, corner, 1f - Mathf.Exp(-rate * Time.deltaTime));
+            _corner = Mathf.Lerp(_corner, corner, 1f - Mathf.Exp(-rate * dt));
 
             CurrentSpeedKmh = speed;
 
@@ -170,13 +199,12 @@ namespace FramedDrift.Racing
         /// fim da pista num tempo diferente do que o simulador calculou.
         /// </summary>
         private void SampleTimeline(float playbackTime, out float distance, out float yaw,
-                                   out float speed, out float corner)
+                                   out float speed)
         {
             SegmentOutcome[] timeline = _result.Timeline;
             distance = 0f;
             yaw = 0f;
             speed = 0f;
-            corner = 0f;
 
             for (int i = 0; i < timeline.Length; i++)
             {
@@ -195,14 +223,6 @@ namespace FramedDrift.Racing
 
                 distance = _track.Path.SegmentStart(i) + outcome.LengthM * t;
                 speed = outcome.VDrift;
-
-                // Em curva o sinal vale 1 do inicio ao fim do trecho - nada de seno, que
-                // e justamente o que faria os efeitos piscarem numa sequencia de curvas.
-                // E se o PROXIMO trecho e curva, a reta no meio nao chega a desligar.
-                bool inCurve = _race.Track[i].IsCurve;
-                bool nextIsCurve = i + 1 < _race.Track.Length && _race.Track[i + 1].IsCurve;
-                bool bridging = nextIsCurve && outcome.Duration * (1f - t) <= CornerBridgeSeconds;
-                corner = inCurve || bridging ? 1f : 0f;
 
                 if (outcome.Drift)
                 {

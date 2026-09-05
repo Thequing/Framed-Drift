@@ -6,6 +6,7 @@
 using FramedDrift.App;
 using FramedDrift.Simulation.Balance;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 namespace FramedDrift.Racing
 {
@@ -28,6 +29,36 @@ namespace FramedDrift.Racing
     public sealed class CameraRig : MonoBehaviour
     {
         [SerializeField] private RaceVisualizer _visualizer;
+
+        /// <summary>
+        /// A vinheta do perfil montado pelo Bootstrap. Opcional de proposito: sem
+        /// pos-processamento a camera continua funcionando, so sem o tunel.
+        /// </summary>
+        [SerializeField] private Vignette _vignette;
+
+        /// <summary>
+        /// O motion blur do perfil do Bootstrap, que nasce em intensidade 0. Opcional
+        /// pelo mesmo motivo que a vinheta.
+        /// </summary>
+        [SerializeField] private MotionBlur _blur;
+
+        /// <summary>Vinheta em repouso e no talo. Fechar a moldura e efeito de VELOCIDADE.</summary>
+        public const float VignetteBase = 0.26f;
+        private const float VignetteFull = 0.42f;
+
+        /// <summary>Velocidade em que a vinheta satura, em km/h.</summary>
+        private const float VignetteFullSpeedKmh = 190f;
+
+        /// <summary>
+        /// Faixa de angulo de drift, em graus, que abre o motion blur. O piso fica logo
+        /// acima do limiar de "esta em curva" dos riscos de velocidade (6 graus), entao os
+        /// dois canais trocam de turno em vez de se sobrepor: os riscos saem, o blur entra.
+        /// </summary>
+        private const float BlurYawMin = 7f;
+        private const float BlurYawFull = 26f;
+
+        /// <summary>Intensidade no angulo maximo. Acima disto o carro deixa de ser silhueta.</summary>
+        private const float BlurMax = 0.5f;
 
         private Camera _camera;
         private BalanceSettings _balance;
@@ -118,14 +149,55 @@ namespace FramedDrift.Racing
             transform.rotation = _baseRotation * Quaternion.Euler(0f, 0f, roll);
             transform.position = _basePosition + transform.rotation * shake;
 
-            // A abertura de FOV tambem e um efeito de CURVA. Presa ao sinal amortecido
-            // de curva, e nao ao yaw, ela nao pulsa a cada fronteira de segmento numa
-            // sequencia de curvas - abre uma vez e fica aberta ate a sequencia acabar.
-            float boost = speed * _balance.CameraFovPerSpeed
-                          + Mathf.Abs(yaw) * _balance.CameraFovPerAngle;
+            // --- abertura de FOV -------------------------------------------------------
+            // Duas parcelas, e a separacao e o ponto: a de VELOCIDADE vale sempre, a de
+            // ANGULO so na curva.
+            //
+            // Antes o boost inteiro era multiplicado por corner, entao em reta o FOV era
+            // constante - e reta e exatamente onde a camera elevada da 19.2 mais perde
+            // sensacao de velocidade. Com a parcela de velocidade solta, acelerar numa
+            // reta ABRE a lente, que e o que substituiu o motion blur que borrava o carro
+            // (ver Bootstrap.CreatePostProcessing).
+            //
+            // A parcela de angulo continua presa ao sinal amortecido de curva, e nao ao
+            // yaw cru, para nao pulsar a cada fronteira de segmento numa sequencia.
+            float fov = _balance.CameraFovBase
+                        + speed * _balance.CameraFovPerSpeed
+                        + Mathf.Abs(yaw) * _balance.CameraFovPerAngle * corner;
 
-            float fov = _balance.CameraFovBase + boost * corner;
             _camera.fieldOfView = Mathf.Lerp(_camera.fieldOfView, fov, damping);
+
+            // A moldura fecha com a velocidade. Age so nas BORDAS da tela, entao compra
+            // sensacao de velocidade sem tocar num pixel do carro.
+            if (_vignette != null)
+            {
+                float t = Mathf.InverseLerp(0f, VignetteFullSpeedKmh, speed);
+                _vignette.intensity.value = Mathf.Lerp(_vignette.intensity.value,
+                                                       Mathf.Lerp(VignetteBase, VignetteFull, t),
+                                                       damping);
+            }
+
+            // O motion blur so existe no DRIFT, e cresce com o angulo.
+            //
+            // Ele e CameraOnly e portanto borra a tela inteira, carro incluso - por isso
+            // nao pode ficar ligado o tempo todo (ver Bootstrap.CreatePostProcessing). Mas
+            // e exatamente no drift que borrar o carro AJUDA: a derrapagem e o momento em
+            // que a leitura pedida pela 19.3 e o movimento, nao o contorno parado.
+            //
+            // Preso ao yaw amortecido, e nao ao sinal de curva: o que borra e a
+            // DERRAPAGEM, e uma curva feita sem angulo nao tem por que borrar nada.
+            // Amortecido junto com a camera para o efeito entrar e sair sem estalo.
+            if (_blur != null)
+            {
+                float t = Mathf.InverseLerp(BlurYawMin, BlurYawFull, Mathf.Abs(yaw));
+                float wanted = Mathf.Lerp(_blur.intensity.value, BlurMax * t, damping);
+
+                // A cauda do amortecimento e assintotica: sem este corte a intensidade
+                // pararia em algo como 0.0004 e nunca em 0, e a URP considera o efeito
+                // ATIVO com qualquer valor acima de zero. Ficariam um passe de blur por
+                // frame e um veu permanente sobre o carro - exatamente o que saiu daqui.
+                _blur.intensity.value = wanted < 0.002f ? 0f : wanted;
+            }
         }
 
         /// <summary>Corta para a posicao final sem amortecer. Usado na largada.</summary>

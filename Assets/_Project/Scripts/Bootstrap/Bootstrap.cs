@@ -30,6 +30,9 @@ namespace FramedDrift.Bootstrap
         [SerializeField] private Color _skyColor = new Color(0.05f, 0.05f, 0.09f);
         [SerializeField] private bool _createCamera = true;
 
+        private Vignette _vignette;
+        private MotionBlur _blur;
+
         private void Awake()
         {
             EnsureGameManager();
@@ -72,6 +75,8 @@ namespace FramedDrift.Bootstrap
             Wire.Set(streaks, "_visualizer", visualizer);
             Wire.Set(collectibles, "_visualizer", visualizer);
             if (rig != null) Wire.Set(rig, "_visualizer", visualizer);
+            if (rig != null && _vignette != null) Wire.Set(rig, "_vignette", _vignette);
+            if (rig != null && _blur != null) Wire.Set(rig, "_blur", _blur);
             if (camera != null) Wire.Set(backdrop, "_follow", camera.transform);
 
             Wire.Set(raceUi, "_perfectEntry", perfectEntry);
@@ -96,31 +101,59 @@ namespace FramedDrift.Bootstrap
         /// perfil e montado em codigo pelo mesmo motivo que a cena e: um .asset de Volume
         /// seria mais um arquivo serializado para quebrar em merge sem explicar nada.
         ///
-        /// Motion blur e o efeito de velocidade que nao custa altura de camera - ele age
-        /// nas BORDAS da tela, que e onde a camera elevada da 19.2 perde a sensacao de
-        /// velocidade. Bloom existe para a paleta neon; nada aqui e realismo.
+        /// <b>Motion blur so no DRIFT, e nada de FXAA.</b> Os dois borravam o CARRO, que
+        /// e o unico objeto da tela cuja silhueta a 19.1 exige legivel a 360x48.
+        ///
+        /// O motion blur e <c>CameraOnly</c>, que reconstroi velocidade por pixel a partir
+        /// do movimento da CAMERA. Como esta camera persegue o carro - seguimento
+        /// amortecido que nunca assenta, mais tranco de Perlin, roll e lerp de FOV - ela
+        /// tem velocidade propria em TODO frame, inclusive em reta a velocidade constante.
+        /// Ligado o tempo inteiro, portanto, ele borrava o carro o tempo inteiro. URP nao
+        /// tem como excluir um objeto do blur de camera.
+        ///
+        /// A saida nao foi apagar o efeito, foi lhe dar um MOMENTO: a intensidade nasce em
+        /// zero aqui e quem a abre e a <see cref="Racing.CameraRig"/>, em funcao do angulo
+        /// de drift. Fora do drift a intensidade e 0 e a URP pula o passe inteiro, entao o
+        /// carro fica nitido de graca; no drift o borrao entra junto com a derrapagem e
+        /// vira leitura em vez de sujeira.
+        ///
+        /// O FXAA e um filtro de BORDA em pos: ele amaciava exatamente o contorno que
+        /// carrega a leitura de yaw. O SMAA custa um pouco mais e devolve o contorno.
+        ///
+        /// A velocidade das RETAS, que o blur permanente vendia, foi para onde nao custa
+        /// nitidez do carro: abertura de FOV por velocidade e vinheta fechando
+        /// (<see cref="Racing.CameraRig"/>) e riscos perifericos
+        /// (<see cref="Racing.SpeedStreaks"/>). Bloom existe para a paleta neon; nada
+        /// aqui e realismo.
         /// </summary>
         private void CreatePostProcessing(Camera camera)
         {
             UniversalAdditionalCameraData data = camera.GetUniversalAdditionalCameraData();
             data.renderPostProcessing = true;
-            data.antialiasing = AntialiasingMode.FastApproximateAntialiasing;
+            data.antialiasing = AntialiasingMode.SubpixelMorphologicalAntiAliasing;
+            data.antialiasingQuality = AntialiasingQuality.High;
 
             var profile = ScriptableObject.CreateInstance<VolumeProfile>();
 
-            var blur = profile.Add<MotionBlur>();
-            blur.mode.Override(MotionBlurMode.CameraOnly);
-            blur.quality.Override(MotionBlurQuality.Medium);
-            blur.intensity.Override(0.35f);
+            // Nasce DESLIGADO (intensidade 0 = passe pulado pela URP). Quem o acende e a
+            // CameraRig, so enquanto houver angulo de drift.
+            _blur = profile.Add<MotionBlur>();
+            _blur.mode.Override(MotionBlurMode.CameraOnly);
+            _blur.quality.Override(MotionBlurQuality.Medium);
+            _blur.intensity.Override(0f);
 
             var bloom = profile.Add<Bloom>();
             bloom.threshold.Override(0.9f);
             bloom.intensity.Override(0.7f);
             bloom.scatter.Override(0.6f);
 
-            var vignette = profile.Add<Vignette>();
-            vignette.intensity.Override(0.26f);
-            vignette.smoothness.Override(0.4f);
+            // Guardado porque a CameraRig ABRE e FECHA esta vinheta com a velocidade: o
+            // tunel fechando e o efeito de velocidade que age so nas bordas da tela, que
+            // e onde a camera elevada da 19.2 perde a sensacao - e o unico que faz isso
+            // sem tocar num pixel do carro.
+            _vignette = profile.Add<Vignette>();
+            _vignette.intensity.Override(CameraRig.VignetteBase);
+            _vignette.smoothness.Override(0.4f);
 
             var tonemapping = profile.Add<Tonemapping>();
             tonemapping.mode.Override(TonemappingMode.Neutral);

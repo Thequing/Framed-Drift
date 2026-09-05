@@ -275,19 +275,25 @@
   "cameraPitchDegrees": 14,
   "cameraSpeedPullback": 0.006,
   "cameraDriftLateralOffset": 0.05,
+  // A parcela POR VELOCIDADE vale sempre, inclusive em reta; a parcela POR ANGULO so
+  // pesa na curva. Com 0.085 o topo de 190 km/h abre a lente de 58 para ~74 graus, que
+  // e o soco de velocidade que substituiu o motion blur - ele borrava o carro e saiu
+  // (ver Bootstrap.CreatePostProcessing).
   "cameraFovBase": 58,
-  "cameraFovPerSpeed": 0.11,
-  "cameraFovPerAngle": 0.10,
+  "cameraFovPerSpeed": 0.085,
+  "cameraFovPerAngle": 0.14,
   "cameraDamping": 6.0,
 
   // Tranco e inclinacao, os dois so em CURVA - em reta a velocidade e vendida pelos
-  // riscos e pelo motion blur. O tranco ainda escala com a velocidade dentro da curva.
+  // riscos, pela abertura de FOV e pela vinheta fechando. O tranco ainda escala com a
+  // velocidade dentro da curva, e agora tambem com o QUAO fechada ela e, porque o sinal
+  // de curva virou proporcional ao giro real da pista (ver RaceVisualizer.CurrentCorner).
   // Nenhum dos dois pode baixar a camera: a altura da 19.2 e o que mantem o yaw
   // legivel (R11).
-  "cameraShakePerSpeed": 0.0007,
-  "cameraShakeMax": 0.07,
-  "cameraRollPerTurnRate": 0.15,
-  "cameraRollMax": 6.0,
+  "cameraShakePerSpeed": 0.0009,
+  "cameraShakeMax": 0.10,
+  "cameraRollPerTurnRate": 0.22,
+  "cameraRollMax": 8.0,
 
   // --- 20.4 desempenho -------------------------------------------------------------------------------------
   "simRaceBudgetMs": 0.3,

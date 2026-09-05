@@ -9,7 +9,9 @@
         "FramedDrift.App",
         "FramedDrift.Progression",
         "FramedDrift.Automation",
-        "Unity.InputSystem"
+        "Unity.InputSystem",
+        "Unity.RenderPipelines.Universal.Runtime",
+        "Unity.RenderPipelines.Core.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -19,6 +19,12 @@ namespace FramedDrift.Racing
     /// esteira sai do proprio deslocamento dela (<c>cameraVelocityScale</c>): o risco
     /// tem exatamente o comprimento da velocidade real, sem nenhum numero inventado.
     ///
+    /// <b>Os numeros sao mais agressivos do que pareceriam sozinhos</b> porque este
+    /// sistema herdou o trabalho do motion blur, que foi removido por borrar o CARRO
+    /// (ver Bootstrap.CreatePostProcessing). Densidade, alfa e comprimento do risco
+    /// subiram para cobrir o buraco - e este canal, ao contrario do blur, so pinta o
+    /// que passa AO LADO da camera, entao nada disso custa nitidez de silhueta.
+    ///
     /// <b>Some nas curvas de proposito.</b> Na curva o canal de leitura e a fumaca
     /// (19.3), que e orcada como sistema de gameplay e tem teste cego proprio. Riscos
     /// brancos por cima dela competiriam com o unico canal que comunica o angulo do
@@ -34,14 +40,14 @@ namespace FramedDrift.Racing
         [SerializeField] private float _yawThreshold = 6f;
 
         [Tooltip("Abaixo desta velocidade nao ha o que vender.")]
-        [SerializeField] private float _minSpeedKmh = 35f;
+        [SerializeField] private float _minSpeedKmh = 22f;
 
         [Tooltip("Velocidade em que a densidade satura.")]
         [SerializeField] private float _fullSpeedKmh = 190f;
 
         [Header("Forma")]
-        [SerializeField] private float _maxEmission = 95f;
-        [SerializeField] private Color _color = new Color(1f, 1f, 1f, 0.45f);
+        [SerializeField] private float _maxEmission = 240f;
+        [SerializeField] private Color _color = new Color(1f, 1f, 1f, 0.72f);
 
         private ParticleSystem _particles;
         private ParticleSystem.EmissionModule _emission;
@@ -97,7 +103,7 @@ namespace FramedDrift.Racing
             _main.startLifetime = 1.6f;
             _main.startSize = 0.07f;
             _main.gravityModifier = 0f;
-            _main.maxParticles = 260;
+            _main.maxParticles = 700;
 
             _emission = _particles.emission;
             _emission.rateOverTime = 0f;
@@ -106,7 +112,7 @@ namespace FramedDrift.Racing
             // periferico realmente e lido, e alto o bastante para nao virar sujeira no chao.
             ParticleSystem.ShapeModule shape = _particles.shape;
             shape.shapeType = ParticleSystemShapeType.Box;
-            shape.scale = new Vector3(22f, 3.4f, 18f);
+            shape.scale = new Vector3(26f, 4.0f, 22f);
 
             ParticleSystem.ColorOverLifetimeModule fade = _particles.colorOverLifetime;
             fade.enabled = true;
@@ -125,8 +131,8 @@ namespace FramedDrift.Racing
             var renderer = GetComponent<ParticleSystemRenderer>();
             renderer.renderMode = ParticleSystemRenderMode.Stretch;
             renderer.velocityScale = 0f;
-            renderer.cameraVelocityScale = 0.35f;   // o risco E o deslocamento da camera
-            renderer.lengthScale = 1.5f;
+            renderer.cameraVelocityScale = 0.75f;   // o risco E o deslocamento da camera
+            renderer.lengthScale = 2.6f;
             renderer.material = new Material(Shader.Find("Universal Render Pipeline/Particles/Unlit"));
         }
     }
