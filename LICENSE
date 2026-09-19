@@ -1,0 +1,30 @@
+Copyright (c) 2026 Lucas Antonino. All rights reserved.
+
+SOURCE-AVAILABLE — FOR READING AND EVALUATION
+
+This repository is published so that employers, collaborators and other
+developers can read the code and judge the work. It is not open source.
+
+You may:
+
+  - read, clone and compile this repository to evaluate it
+  - quote short excerpts with attribution, for review or discussion
+
+You may not, without prior written permission from the copyright holder:
+
+  - redistribute this work or any substantial part of it
+  - publish, sell or otherwise commercially exploit it, in whole or in part
+  - create or distribute derivative works, including games built from this
+    code, its content files or its design documents
+
+Framed Drift is an unreleased commercial game. The design document in
+`Docs/` is covered by this notice as well as the code.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+Third-party assets, fonts and packages retain their own licenses.

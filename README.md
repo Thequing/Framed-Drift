@@ -1,5 +1,105 @@
 # Framed Drift
 
+An idle drift RPG for PC, solo, in Unity 6. The player never drives. They **prepare** —
+pick the car, build the tune, choose the style, the track, the hour, the weather and how
+much risk to take — and then watch the car run, or don't watch at all.
+
+Underneath is a race simulator that resolves the whole race at once, deterministically,
+and **does not know Unity exists**.
+
+> Detailed documentation below this section is in Portuguese. This part is the summary
+> in English. Full spec: [`Docs/GDD.md`](Docs/GDD.md).
+
+---
+
+## Why the architecture is the point
+
+The `Simulation` assembly sets `noEngineReferences: true` in its asmdef. That turns a
+design rule — *"`UnityEngine.Random` is forbidden in the Simulation namespace"* — from
+discipline into a **compile error**. What that buys:
+
+- balance tests run under `dotnet`, **without opening the editor**, in under a second
+- **10,000 races resolve in 0.06 s**; a single race in 0.006 ms
+- no result depends on framerate, platform or `Update` order
+
+A race runs in two phases, and the split is what makes offline progress honest:
+
+```
+1. RESOLVE    RaceSimulator decides the ENTIRE race at once.
+              Returns a RaceResult with the full Timeline — and NO DriftScore.
+
+2. REPLAY     The visualiser plays the timeline back. Perfect Entry edits only the
+              QUALITY of corners that are already resolved. At the end, DriftScorer
+              reduces the timeline to a number.
+
+   Offline skips phase 2 and calls the SAME scorer on the untouched timeline.
+```
+
+`RaceResult` deliberately has **no** `DriftScore` field. The score comes out of
+`DriftScorer.Score(timeline)` *after* replay, because until then the input could still
+edit the timeline. Offline calls that identical function on an unedited timeline — so
+"offline earns what online earns" is true by construction, not because a test says so.
+Measured drift between the two: **0.06 %**.
+
+## Measured, not claimed
+
+Every row below is an exit criterion from the GDD written as an assert. **135 tests**
+(127 EditMode + 8 PlayMode), all passing.
+
+| Criterion | Target | Measured |
+|---|---|---|
+| Starting car win rate | 55–75 % | **68.3 %** |
+| Win rate entering C / B / A / S | 55–75 % | **68.8 / 63.7 / 63.2 / 64.3 %** |
+| Cash per race, D → S | must climb | **617 → 1,642 → 4,467 → 11,459 → 32,203** |
+| Offline vs. online cash/hour | ±8 % | **0.06 %** |
+| Presence uplift | 20–30 % | **24.5 %** |
+| Failure rate at MEDIUM risk | 3–6 % | **4.1 %** |
+| Drift build vs. speed build | 1.8×–2.6× | **2.48×** |
+| One simulated race | < 0.3 ms | **0.006 ms** |
+| 10,000 races | < 5 s | **0.06 s** |
+| Generated tracks valid | 200 / 200 | **200 / 200** |
+
+Beyond those, the suite covers byte-for-byte determinism per seed, isolation between RNG
+streams, the guarantee that a promotion **never** touches physics or combo, that Bad never
+silently becomes Good, an honest offline ceiling, a clock set backwards without punishing
+the player, and save round-trips with backup recovery.
+
+## The rivals are the same code as the player
+
+A rival is a real car with a real build, resolved by the **same** `RaceSimulator`, on its
+own RNG stream so that adding one doesn't shift any of the player's curves. It takes a
+grid slot instead of adding one.
+
+Defeat is measured in Drift Score, never in position — which is what makes AKIRA's lesson
+teachable: he crosses the line first in **99.7 %** of races and still loses the scoreboard
+in half of them. Each rival's build is in `rivals.json` part by part, because the design
+requires it to be readable and counterable.
+
+## Content is commented JSON
+
+11 tracks · 57 parts · 12 affixes · 8 conditional passives · 5 rivals — all in
+`Assets/_Project/Resources/Content/`, editable without recompiling. Enums are written by
+**name**, never by index, so reordering can't silently turn one value into another.
+
+## Running it
+
+1. Open in Unity 6000.3.10f1
+2. Open `Assets/_Project/Scenes/FramedDrift.unity`
+3. Play
+
+The scene holds **one GameObject** with a `Bootstrap` component that builds camera, track,
+car, HUD and systems in code. Editor menu: balancing tool (`Ctrl+Shift+B`), content
+validator, track-generator test, scene rebuild.
+
+**All art is placeholder and that is deliberate.** The car is a cube with a yellow stripe;
+the track is a run of flattened cubes. The stripe exists to keep one non-negotiable
+requirement visible: yaw has to read unambiguously from the raised chase camera. Models
+drop in later without touching the architecture.
+
+---
+
+# Documentação completa (português)
+
 RPG incremental de drift para PC. O jogador nao pilota: ele **prepara** - escolhe o
 carro, monta a build de tuning, define o estilo, a pista, o horario, o clima e quanto
 risco assumir - e entao assiste (ou nao) o carro executar.
